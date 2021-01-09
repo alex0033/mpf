@@ -61,7 +61,7 @@ export class ProgectData {
         return this.Data.find(d => d.rootPath === rootPath);
     }
 
-    static fetchRootId(rootPath: string): number {
+    private static fetchRootDataId(rootPath: string): number {
         return this.Data.findIndex(d => d.rootPath === rootPath);
     }
 
@@ -73,7 +73,7 @@ export class ProgectData {
         return undefined;
     }
 
-    static fetchFileDataId(rootPath: string, filePath: string): number {
+    private static fetchFileDataId(rootPath: string, filePath: string): number {
         const rootData = this.fetchRootData(rootPath);
         if (rootData) {
             return rootData.files.findIndex(f => f.filePath == filePath);
@@ -83,7 +83,7 @@ export class ProgectData {
 
     // DESTROY
     static deleteRootData(rootPath: string) {
-        const rootId = this.fetchRootId(rootPath);
+        const rootId = this.fetchRootDataId(rootPath);
         this.Data.splice(rootId, 1);
         this.save();
     }

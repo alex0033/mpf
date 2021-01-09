@@ -22,21 +22,17 @@ export class Root {
     // CREATE
     static create(rootPath: string): Root | undefined {
         const rootData = ProgectData.createRootData(rootPath);
-        if (rootData) {
-            const newRoot = new Root(rootPath, rootData);
-            return newRoot;
-        }
-        return undefined;
+        // DRY??
+        const root = rootData && new Root(rootPath, rootData);
+        return root;
     }
 
     // READ
     static findBy(rootPath: string): Root | undefined {
         const rootData = ProgectData.fetchRootData(rootPath);
-        if (rootData) {
-            const root = new Root(rootPath, rootData);
-            return root;
-        }
-        return undefined;
+        // DRY??
+        const root = rootData && new Root(rootPath, rootData);
+        return root;
     }
 
     // UPDATE

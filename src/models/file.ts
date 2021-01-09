@@ -24,21 +24,15 @@ export class File {
     // CREATE
     static create(rootPath: string, filePath: string): File | undefined {
         const fileData = ProgectData.createFileData(rootPath, filePath);
-        if (fileData) {
-            const file = new File(rootPath, filePath, fileData);
-            return file;
-        }
-        return undefined;
+        const file = fileData && new File(rootPath, filePath, fileData);
+        return file;
     }
 
     // READ
     static findBy(rootPath: string, filePath: string): File | undefined {
         const fileData = ProgectData.fetchFileData(rootPath, filePath);
-        if (fileData) {
-            const file = new File(rootPath, filePath, fileData);
-            return file;
-        }
-        return undefined;
+        const file = fileData && new File(rootPath, filePath, fileData);
+        return file;
     }
 
     // UPDATE
@@ -46,7 +40,7 @@ export class File {
         if (ProgectData.fileDataIsDuplicated(this.rootPath, filePath)) {      
             return;
         }
-        this.filePath = filePath;
+        this.Data.filePath = filePath;
         this.connectData();
     }
 
