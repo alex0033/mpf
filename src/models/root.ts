@@ -2,7 +2,7 @@ import { ProgectData } from './project';
 import { FileData } from './file';
 
 export class Root {
-    private rootPath: string;
+    rootPath: string;
     files: FileData[];
     private Data: RootData;
 
@@ -30,7 +30,7 @@ export class Root {
     }
 
     // READ
-    static find_by(rootPath: string): Root | undefined {
+    static findBy(rootPath: string): Root | undefined {
         const rootData = ProgectData.fetchRootData(rootPath);
         if (rootData) {
             const root = new Root(rootPath, rootData);

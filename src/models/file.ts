@@ -32,7 +32,7 @@ export class File {
     }
 
     // READ
-    static find_by(rootPath: string, filePath: string): File | undefined {
+    static findBy(rootPath: string, filePath: string): File | undefined {
         const fileData = ProgectData.fetchFileData(rootPath, filePath);
         if (fileData) {
             const file = new File(rootPath, filePath, fileData);

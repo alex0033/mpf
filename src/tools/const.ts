@@ -1,0 +1,1 @@
+export const PROGECT_DATA_PATH = "./data/progect_data.json";

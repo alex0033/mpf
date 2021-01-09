@@ -1,9 +1,10 @@
-import fs from 'fs';
+import * as fs from 'fs';
 import { FileData } from './file';
 import { RootData } from "./root";
+import { PROGECT_DATA_PATH } from '../tools/const';
 
 export class ProgectData {
-    private static dataPath = "./mydata/real_data.json";
+    private static dataPath = PROGECT_DATA_PATH;
     private static Data: RootData[] = JSON.parse(fs.readFileSync(ProgectData.dataPath, 'utf8'));
 
     // 引数が多いなこれ！！
@@ -94,6 +95,7 @@ export class ProgectData {
     }
 
     static save(){
+        console.dir(this.Data);
         fs.writeFileSync(this.dataPath, JSON.stringify(this.Data, null, "\t"));
     }
 }
