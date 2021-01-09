@@ -16,9 +16,5 @@
 	{
 		"rootPath": "/newRootPath",
 		"files": []
-	},
-	{
-		"rootPath": "root/new",
-		"files": []
 	}
 ]

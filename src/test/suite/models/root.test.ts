@@ -1,9 +1,11 @@
 import * as assert from 'assert';
+import { beforeEach, afterEach, describe, it } from 'mocha';
 import { ProgectData } from '../../../models/project';
 import { Root } from '../../../models/root';
 import { PROGECT_DATA_PATH } from '../../../tools/const';
 
-const mock = require('mock-fs');
+// requireでいい？？importで統一？？
+const mockfs = require('mock-fs');
 
 const testData = [
     {
@@ -13,20 +15,26 @@ const testData = [
 ]
 const testDataString = JSON.stringify(testData, null, "\t")
 
-suite('Root Test Suite', () => {
-    // beforeEach(() => {
-    //     // mock({
-    //     //     PROGECT_DATA_PATH: testDataString
-    //     // });
-    // });
+describe('Root Test Suite', () => {
+    beforeEach(() => {
+        // この書き方はスマートではない
+        // "data"ってやだな！！
+        // 入っている関数使えるのではdirectoryごと作るてきな！
+        // リファクタリング対象として進めましょう
+        mockfs({
+            "data": {},
+            PROGECT_DATA_PATH: testDataString
+        });
+    });
 
-    // afterEach(() => {
-    //     // mock.restore();
-    // });
+    afterEach(() => {
+        mockfs.restore();
+    });
 
-	test('cretate new root', () => {
+	it('cretate new root', () => {
         const rootPath = "root/new"
-        let root = Root.create(rootPath);
+        const root = Root.create(rootPath);
+        
         if (root) {
             // インスタンスが適切に作られているか
             assert.ok(root.rootPath === rootPath, "It should make instance");
@@ -37,15 +45,15 @@ suite('Root Test Suite', () => {
         }
     });
 
-    test('find root', () => {
+    it('find root', () => {
 
     });
 
-    test('updatate root', () => {
+    it('updatate root', () => {
         
     });
 
-    test('delete root', () => {
+    it('delete root', () => {
     
     });
 });
