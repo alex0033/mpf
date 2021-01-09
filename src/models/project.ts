@@ -10,7 +10,11 @@ export class ProgectData {
     // 引数が多いなこれ！！
     // オブジェクト指向かどうか怪しい・・・・・・・
 
-    // CREATE
+    // この関数はテスト用（ライブラリーの関係でthis.Dataに値が入らないため）
+    static loadData() {
+        this.Data = JSON.parse(fs.readFileSync(ProgectData.dataPath, 'utf8'));
+    }
+
     static rootDataIsDuplicated(rootPath: string): boolean {
         return Boolean(this.fetchRootData(rootPath));
     }
@@ -19,6 +23,7 @@ export class ProgectData {
         return Boolean(this.fetchFileData(rootPath, filePath));
     }
 
+    // CREATE
     static createRootData(rootPath: string): RootData | undefined {
         if (this.rootDataIsDuplicated(rootPath)) {
             return undefined;
@@ -76,6 +81,7 @@ export class ProgectData {
         return -1;
     }
 
+    // DESTROY
     static deleteRootData(rootPath: string) {
         const rootId = this.fetchRootId(rootPath);
         this.Data.splice(rootId, 1);

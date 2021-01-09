@@ -1,20 +1,6 @@
 [
 	{
-		"rootPath": "/rootPath",
-		"files": [
-			{
-				"filePath": "/alex/hello_world/dir/file1.txt",
-				"messages": [
-					"edit message",
-					"1",
-					"2",
-					"new message"
-				]
-			}
-		]
-	},
-	{
-		"rootPath": "/newRootPath",
+		"rootPath": "/root/exist",
 		"files": []
 	}
 ]
