@@ -6,13 +6,13 @@ import { Root, RootData } from '../../../models/root';
 // requireでいい？？importで統一？？
 const mockfs = require('mock-fs');
 
-const existRootPath = "/root/exist"
+const existRootPath = "/root/exist";
 const existRootData: RootData = {
     rootPath: existRootPath,
     files: []
 }
-const testData = [existRootData]
-const testDataString = JSON.stringify(testData, null, "\t")
+const testData = [existRootData];
+const testDataString = JSON.stringify(testData, null, "\t");
 
 describe('Root Test Suite', () => {
     beforeEach(() => {
@@ -69,7 +69,7 @@ describe('Root Test Suite', () => {
         const previousRoot = Root.findBy(existRootPath);
         const nextRoot = Root.findBy(updatePath);
         assert.strictEqual(previousRoot, undefined);
-        assert.notStrictEqual(nextRoot, undefined);
+        assert.strictEqual(nextRoot?.rootPath, updatePath);
     });
 
     // DELETE

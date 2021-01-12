@@ -25,7 +25,7 @@ const existRootDataWithFile = {
 }
 
 const testData = [existRootData, existRootDataWithFile];
-const testDataString = JSON.stringify(testData, null, "\t")
+const testDataString = JSON.stringify(testData, null, "\t");
 
 describe('ProgectData Test Suite', () => {
     beforeEach(() => {

@@ -1,9 +1,9 @@
 import { ProgectData } from './project';
 
 export class File {
-    private filePath: string;
     private rootPath: string;
     private Data: FileData;
+    filePath: string;
     messages: string[];
 
     constructor(rootPath: string, filePath: string, fileData: FileData) {
