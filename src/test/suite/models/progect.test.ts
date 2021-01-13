@@ -131,7 +131,7 @@ describe('ProgectData Test Suite', () => {
         assert.strictEqual(fileData, undefined);
     });
 
-    // // DELETE FileData
+    // DELETE FileData
     it('delete fileData', () => {
         ProgectData.deleteFileData(existRootPathWithFile, existFilePath);
         const rootData = ProgectData.fetchRootData(existRootPathWithFile);

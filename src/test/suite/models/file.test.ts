@@ -2,7 +2,7 @@ import * as assert from 'assert';
 import { beforeEach, afterEach, describe, it } from 'mocha';
 import { File, FileData } from '../../../models/file';
 import { ProgectData } from '../../../models/project';
-import { Root, RootData } from '../../../models/root';
+import { RootData } from '../../../models/root';
 
 // requireでいい？？importで統一？？
 const mockfs = require('mock-fs');
@@ -125,16 +125,16 @@ describe('File Test Suite', () => {
             assert.notStrictEqual(updateFile?.messages[index], message);
         } else {
             assert.ok(false, "It is unexpeced error. Message should not be undefined.")
-        }   
+        }
     });
 
     // DELETE
     it('delete file', () => {
         let file = File.findBy(existRootPath, existFilePath);
         file?.destroy();
-        const Destroyedfile = File.findBy(existRootPath, existFilePath);
+        const destroyedfile = File.findBy(existRootPath, existFilePath);
         // 本当はこの仕様にしたい！！
         // assert.strictEqual(file, undefined);
-        assert.strictEqual(Destroyedfile, undefined);
+        assert.strictEqual(destroyedfile, undefined);
     });
 });

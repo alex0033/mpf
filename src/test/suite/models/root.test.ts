@@ -76,9 +76,9 @@ describe('Root Test Suite', () => {
     it('delete root', () => {
         let root = Root.findBy(existRootPath);
         root?.destroy();
-        const DestroyedRoot = Root.findBy(existRootPath);
+        const destroyedRoot = Root.findBy(existRootPath);
         // 本当はこの仕様にしたい！！
         // assert.strictEqual(root, undefined);
-        assert.strictEqual(DestroyedRoot, undefined);
+        assert.strictEqual(destroyedRoot, undefined);
     });
 });
