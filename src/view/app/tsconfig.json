@@ -1,0 +1,22 @@
+{
+    "compilerOptions": {
+        "module": "esnext",
+        "moduleResolution": "node",
+        "target": "es6",
+        "outDir": "configViewer",
+        "lib": [
+            "es6",
+            "dom"
+        ],  
+        "jsx": "react",
+        "sourceMap": true,
+        "rootDir": "..", // ここの仕組み？？
+        "noUnusedLocals": true,
+        "noImplicitReturns": true,
+        "noFallthroughCasesInSwitch": true,
+        "experimentalDecorators": true
+    },
+    "exclude": [
+        "node_modules"
+    ]
+}

@@ -1,6 +1,10 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
+import ViewLoader from "./view/ViewLoader";
+
+
+import * as glob from 'glob';
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -18,19 +22,19 @@ export function activate(context: vscode.ExtensionContext) {
 
 		// Display a message box to the user
 		vscode.window.showInformationMessage('Hello World from memo_per_file!');
-		
-		let newPanel = vscode.window.createWebviewPanel("test", "Test", vscode.ViewColumn.One);
-		newPanel.webview.html = `<!DOCTYPE html>
-		<html lang="en">
-		<head>
-			<meta charset="UTF-8">
-			<meta name="viewport" content="width=device-width, initial-scale=1.0">
-			<title>Cat Coding</title>
-		</head>
-		<body>
-			<img src="https://media.giphy.com/media/JIX9t2j0ZTN9S/giphy.gif" width="300" />
-		</body>
-		</html>`;
+
+		const view = new ViewLoader(context.extensionPath);
+
+		// const pattern = "";
+        // glob(pattern, (err: Error | null, files: string[]) => {
+        //     if(err) {
+        //         console.log(err);
+        //     }
+		// 	console.log(__dirname);
+            
+        //     console.log(pattern);
+        //     console.log(files);
+        // });
 	});
 
 	context.subscriptions.push(disposable);
