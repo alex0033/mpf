@@ -1,9 +1,10 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
+import Welcome from './header';
 
 import './index.css';
 
 ReactDOM.render(
-    <h2>World</h2>,
+    <Welcome/>,
     document.getElementById('root')
 );

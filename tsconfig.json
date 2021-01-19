@@ -22,6 +22,7 @@
 		".vscode-test",
 		"**/view/app/index.css",
 		"**/view/app/index.tsx",
+		"**/view/app/header.tsx",
 		"**/view/app/tsconfig.json",
 		"**/view/app/config.tsx"
 	]
