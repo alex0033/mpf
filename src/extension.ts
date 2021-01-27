@@ -3,9 +3,6 @@
 import * as vscode from 'vscode';
 import ViewLoader from "./view/ViewLoader";
 
-
-import * as glob from 'glob';
-
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
@@ -23,18 +20,8 @@ export function activate(context: vscode.ExtensionContext) {
 		// Display a message box to the user
 		vscode.window.showInformationMessage('Hello World from memo_per_file!');
 
-		const view = new ViewLoader(context.extensionPath);
-
-		// const pattern = "";
-        // glob(pattern, (err: Error | null, files: string[]) => {
-        //     if(err) {
-        //         console.log(err);
-        //     }
-		// 	console.log(__dirname);
-            
-        //     console.log(pattern);
-        //     console.log(files);
-        // });
+		// const view = new ViewLoader(context.extensionPath);
+		const view = new ViewLoader(context);
 	});
 
 	context.subscriptions.push(disposable);

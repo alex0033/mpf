@@ -1,13 +1,13 @@
 import * as vscode from "vscode";
 import * as path from "path";
-import * as glob from "glob";
 
 export default class ViewLoader {
     private readonly _panel: vscode.WebviewPanel | undefined;
     private readonly _extensionPath: string;
 
-    constructor(extensionPath: string) {
-        this._extensionPath = extensionPath;
+    // constructor(extensionPath: string) {
+    constructor(context: vscode.ExtensionContext) {
+        this._extensionPath = context.extensionPath;
 
         this._panel = vscode.window.createWebviewPanel(
         "configView",
@@ -17,12 +17,22 @@ export default class ViewLoader {
                 enableScripts: true,
 
                 localResourceRoots: [
-                    vscode.Uri.file(path.join(extensionPath, "configViewer"))
+                    // changed
+                    vscode.Uri.file(path.join(this._extensionPath, "configViewer"))
                 ]
             }
         );
-        const html = this.getWebviewContent();
         this._panel.webview.html = this.getWebviewContent();
+        this._panel.webview.postMessage({ messages: ["1", "2"] });
+
+        // this._panel.webview.onDidReceiveMessage(
+        //     message => {
+        //         vscode.window.showErrorMessage(message);
+        //         console.log("come onDidReceive////");
+        //     },
+        //     undefined,
+        //     context.subscriptions
+        //   );
     }
 
     private getWebviewContent(): string {
@@ -31,18 +41,6 @@ export default class ViewLoader {
             path.join(this._extensionPath, "configViewer", "configViewer.js")
         );
         let reactAppUri = reactAppPathOnDisk.with({ scheme: "vscode-resource" });
-        console.log("come here");
-        console.log(reactAppUri);
-        const pattern = "**/*.ts";
-        glob(pattern, (err: Error | null, files: string[]) => {
-            if(err) {
-                console.log(err);
-            }
-			console.log(__dirname);
-            
-            console.log(pattern);
-            console.log(files);
-        });
 
         return `<!DOCTYPE html>
         <html lang="en">
@@ -62,11 +60,9 @@ export default class ViewLoader {
         </head>
         <body>
             <div id="root">
-                <p>
-                    aaaaaaaaa
-                </p>
                 <script src="${reactAppUri}"></script>
             </div>
+            <p id="ex">original ex</p>
         </body>
         </html>`;
     }
