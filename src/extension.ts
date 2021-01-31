@@ -1,6 +1,7 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
+import { File } from './models/file';
 import ViewLoader from "./view/ViewLoader";
 
 // this method is called when your extension is activated
@@ -20,11 +21,24 @@ export function activate(context: vscode.ExtensionContext) {
 		// Display a message box to the user
 		vscode.window.showInformationMessage('Hello World from memo_per_file!');
 
-		// const view = new ViewLoader(context.extensionPath);
-		const view = new ViewLoader(context);
+		// viewLoaderという変数名やクラス設計が？？
+		const viewLoader = new ViewLoader(context);
+		postFileMessags(viewLoader);
 	});
 
 	context.subscriptions.push(disposable);
+}
+
+function postFileMessags(viewLoader: ViewLoader) {
+	const filePath = vscode.window.activeTextEditor?.document.fileName
+	const rootPath = vscode.workspace.rootPath;
+	if (rootPath && filePath) {
+		const file = File.findBy(rootPath, filePath);
+		console.log(rootPath);
+		console.log(filePath);
+		console.log(file?.messages);
+		viewLoader._panel?.webview.postMessage(file?.messages);
+	}
 }
 
 // this method is called when your extension is deactivated

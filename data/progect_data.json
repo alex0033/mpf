@@ -7,5 +7,14 @@
 				"messages": ["0", "1",  "2", "3", "4"]
 			}
 		]
+	},
+	{
+		"rootPath": "/home/alex/path/mydb_dir",
+		"files": [
+			{
+				"filePath": "/home/alex/path/mydb_dir/mydb.rb",
+				"messages": ["0", "1",  "2", "3", "4"]
+			}
+		]
 	}
 ]

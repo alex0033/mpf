@@ -2,7 +2,7 @@ import * as vscode from "vscode";
 import * as path from "path";
 
 export default class ViewLoader {
-    private readonly _panel: vscode.WebviewPanel | undefined;
+    readonly _panel: vscode.WebviewPanel | undefined;
     private readonly _extensionPath: string;
 
     // constructor(extensionPath: string) {

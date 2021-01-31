@@ -8,16 +8,3 @@ ReactDOM.render(
     <Main/>,
     document.getElementById('root')
 );
-
-window.addEventListener('message', e => {
-    const element = document.getElementById('ex');
-    element.textContent = e.data.messages[0];
-});
-
-// useEffectが使えない？？
-// React.useEffect(() => {
-//     window.addEventListener('message', e => {
-//         const element = document.getElementById('ex');
-//         element.textContent = e.data.messages[0];
-//     });
-// });
