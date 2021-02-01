@@ -34,10 +34,7 @@ function postFileMessags(viewLoader: ViewLoader) {
 	const rootPath = vscode.workspace.rootPath;
 	if (rootPath && filePath) {
 		const file = File.findBy(rootPath, filePath);
-		console.log(rootPath);
-		console.log(filePath);
-		console.log(file?.messages);
-		viewLoader._panel?.webview.postMessage(file?.messages);
+		viewLoader._panel?.webview.postMessage({messages: file?.messages});
 	}
 }
 
