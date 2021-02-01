@@ -5,11 +5,11 @@ import Messages from './messages';
 
 export default class Main extends React.Component {
     render() {
-    const main = <div>
-            <Header/>
-            <Messages/>
-            <Footer/>
-        </div>;
+        const main = <div>
+                <Header/>
+                <Messages/>
+                <Footer/>
+            </div>;
         return main;
     }
 }

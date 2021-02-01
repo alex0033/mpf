@@ -5,8 +5,6 @@ export default class Messages extends React.Component<PropsType, {}> {
         super(props);
     }
 
-    // messageタグ？？
-    // 配列を順番に表示させるのはどう表現する？？
     render() {
         return (
             <div className="message">

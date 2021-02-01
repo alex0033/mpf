@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import { FileData } from './file';
 import { RootData } from "./root";
-import { PROGECT_DATA_PATH } from '../tools/const';
+import { PROGECT_DATA_PATH } from '../consts/data_path';
 
 export class ProgectData {
     private static dataPath = PROGECT_DATA_PATH;

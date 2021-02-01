@@ -1,5 +1,5 @@
 import * as React from 'react';
-import Message from './Message';
+import Message from './message';
 
 export default class Messages extends React.Component<{}, MessagesType> {
     constructor(props) {
@@ -12,8 +12,6 @@ export default class Messages extends React.Component<{}, MessagesType> {
         });
     }
 
-    // messageタグ？？
-    // 配列を順番に表示させるのはどう表現する？？
     render() {
         return (
             <div id="messages">

@@ -62,7 +62,6 @@ export default class ViewLoader {
             <div id="root">
                 <script src="${reactAppUri}"></script>
             </div>
-            <p id="ex">original ex</p>
         </body>
         </html>`;
     }
