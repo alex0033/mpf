@@ -1,45 +1,30 @@
 import * as assert from 'assert';
 import { beforeEach, afterEach, describe, it } from 'mocha';
-import { FileData } from '../../../models/file';
-import { ProgectData } from '../../../models/project';
-import { RootData } from '../../../models/root';
+import { Progect, ProgectData } from '../../../models/project';
 
 // requireでいい？？importで統一？？
 const mockfs = require('mock-fs');
 
-const existRootPath = "/root/exist";
-const existRootData: RootData = {
-    rootPath: existRootPath,
-    files: []
+const existProgectId = 0;
+const existProgectPath = "/root/exist";
+const existProgectData: ProgectData = {
+    title: "exist progect",
+    path: existProgectPath
 }
+const existProgect = Progect.deserialize(existProgectData);
 
-const existRootPathWithFile = "/root/exist2";
-const existFilePath = `${existRootPathWithFile}/file.txt`;
-const existFileData = {
-    filePath: existFilePath,
-    messages: ["message1", "message2", "message3"] 
-}
-const existRootDataWithFile = {
-    rootPath: existRootPathWithFile,
-    files: [existFileData]
-}
-
-const testData = [existRootData, existRootDataWithFile];
+const testData = [existProgectData];
 const testDataString = JSON.stringify(testData, null, "\t");
 
 describe('ProgectData Test Suite', () => {
     beforeEach(() => {
-        // この書き方はスマートではない
-        // "data"ってやだな！！
-        // 入っている関数使えるのではdirectoryごと作るてきな！
-        // リファクタリング対象として進めましょう
         mockfs({
-            data: {
-                "progect_data.json": testDataString
+            mpf_server_data: {
+                "progect.json": testDataString
             }
         });
-        // これによりデータがProgectDataのクラス変数（Data）に反映される！！
-        ProgectData.loadData();
+        // これによりデータがProgectのクラス変数（Data）に反映される！！
+        Progect.loadData();
     });
 
     afterEach(() => {
@@ -47,96 +32,68 @@ describe('ProgectData Test Suite', () => {
     });
 
     it('check mock', () => {
-        const rootData = ProgectData.fetchRootData(existRootPath);
-        assert.deepStrictEqual(rootData, existRootData, "It should save data");
+        const progect = Progect.findByPath(existProgectPath);
+        assert.deepStrictEqual(progect, existProgect, "It should save data");
      });
 
-    // CREATE RootData
-	it('cretate newRootData', () => {
-        const rootPath = '/root/new';
-        const rootData = ProgectData.createRootData(rootPath);
-        const expectedRootData: RootData = {
-            rootPath: rootPath,
-            files: []
+    // CREATE Progect
+	it('cretate', () => {
+        const title = "new progect";
+        const path = '/root/new';
+        const progectData: ProgectData = {
+            title: title,
+            path: path
         }
-        assert.deepStrictEqual(rootData, expectedRootData);
+        const expectedProgect = Progect.deserialize(progectData);
+        const progect = Progect.create(progectData);
+        assert.deepStrictEqual(progect, expectedProgect);
 
-        const rootDataForConfirm = ProgectData.fetchRootData(rootPath);
-        assert.deepStrictEqual(rootDataForConfirm, expectedRootData);
+        const progectDataForConfirm = Progect.findByPath(path);
+        assert.deepStrictEqual(progectDataForConfirm, expectedProgect);
     });
 
-    it('cannot cretate existRootData', () => {
-        const rootData = ProgectData.createRootData(existRootPath);
-        assert.strictEqual(rootData, undefined);
+    // unique path???
+    it('cannot cretate existProgect', () => {
+        const existProgect = Progect.create(existProgectData);
+        assert.strictEqual(existProgect, undefined);
     });
 
-    // CREATE FileData 
-    it('cretate newFileData', () => {
-        const filePath = `${existRootPath}/new.txt`;
-        const fileData = ProgectData.createFileData(existRootPath, filePath);
-        const expectedFileData: FileData = {
-            filePath: filePath,
-            messages: []
-        }
-        assert.deepStrictEqual(fileData, expectedFileData);
-
-        const fileDataForConfirm = ProgectData.fetchFileData(existRootPath, filePath);
-        assert.deepStrictEqual(fileDataForConfirm, expectedFileData);
+    // READ
+    it('findById', () => {
+        const progect = Progect.findById(existProgectId);
+        assert.deepStrictEqual(progect, existProgect);
     });
 
-    it('cannot cretate existFileData', () => {
-        const fileData = ProgectData.createFileData(existRootPathWithFile, existFilePath);
-        assert.strictEqual(fileData, undefined);
+    it('cannot findById', () => {
+        const notExistProgectId = 33;
+        const progect = Progect.findById(notExistProgectId);
+        assert.deepStrictEqual(progect, undefined);
     });
 
-    // READ RootData
-    it('fetch existRootData', () => {
-        const rootData = ProgectData.fetchRootData(existRootPath);
-        assert.deepStrictEqual(rootData, existRootData);
+    it('findByPath', () => {
+        const progect = Progect.findByPath(existProgectPath);
+        assert.deepStrictEqual(progect, existProgect);
     });
 
-    it('cannot fetch notExistRootData', () => {
-        const rootData = ProgectData.fetchRootData(`${existRootPath}not_exist`);
-        assert.strictEqual(rootData, undefined);
+    it('cannot findByPath', () => {
+        const notExistProgectPath = "/not/exist";
+        const progect = Progect.findByPath(notExistProgectPath);
+        assert.deepStrictEqual(progect, undefined);
     });
 
-    // READ FileData
-    it('fetch existFileData', () => {
-        const fileData = ProgectData.fetchFileData(existRootPathWithFile, existFilePath);
-        assert.deepStrictEqual(fileData, existFileData);
-    });
+    // // DELETE ProgectData
+    // it('delete ProgectData', () => {
+    //     ProgectData.deleteProgectData(existProgectPath);
+    //     const ProgectData = ProgectData.fetchProgectData(existProgectPath);
+    //     assert.strictEqual(ProgectData, undefined);
+    // });
 
-    it('cannot fetch notExistFileData with notExistRootPath', () => {
-        const fileData = ProgectData.fetchFileData("not/exist/path", existFilePath);
-        assert.strictEqual(fileData, undefined);
-    });
+    // it('delete ProgectDataWithFile', () => {
+    //     ProgectData.deleteProgectData(existProgectPathWithFile);
+    //     const ProgectData = ProgectData.fetchProgectData(existProgectPathWithFile);
+    //     const fileData = ProgectData.fetchFileData(existProgectPathWithFile, existFilePath);
+    //     assert.strictEqual(ProgectData, undefined);
+    //     assert.strictEqual(fileData, undefined);
+    // });
 
-    it('cannot fetch notExistFileData with notExistFilePath', () => {
-        const fileData = ProgectData.fetchFileData(existRootPathWithFile, `${existRootPathWithFile}/not_exist.txt`);
-        assert.strictEqual(fileData, undefined);
-    });
-
-    // DELETE RootData
-    it('delete rootData', () => {
-        ProgectData.deleteRootData(existRootPath);
-        const rootData = ProgectData.fetchRootData(existRootPath);
-        assert.strictEqual(rootData, undefined);
-    });
-
-    it('delete rootDataWithFile', () => {
-        ProgectData.deleteRootData(existRootPathWithFile);
-        const rootData = ProgectData.fetchRootData(existRootPathWithFile);
-        const fileData = ProgectData.fetchFileData(existRootPathWithFile, existFilePath);
-        assert.strictEqual(rootData, undefined);
-        assert.strictEqual(fileData, undefined);
-    });
-
-    // DELETE FileData
-    it('delete fileData', () => {
-        ProgectData.deleteFileData(existRootPathWithFile, existFilePath);
-        const rootData = ProgectData.fetchRootData(existRootPathWithFile);
-        const fileData = ProgectData.fetchFileData(existRootPathWithFile, existFilePath);
-        assert.notStrictEqual(rootData, undefined);
-        assert.strictEqual(fileData, undefined);
-    });
 });

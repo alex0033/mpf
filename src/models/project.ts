@@ -1,107 +1,84 @@
 import * as fs from 'fs';
-import { FileData } from './file';
-import { RootData } from "./root";
-import { PROGECT_DATA_PATH } from '../consts/data_path';
+import { server } from '../consts/data_path';
 
-export class ProgectData {
-    private static dataPath = PROGECT_DATA_PATH;
-    private static Data: RootData[] = JSON.parse(fs.readFileSync(ProgectData.dataPath, 'utf8'));
+export class Progect {
+    private static dataPath = server.progetctDataPath;
+    private static Data: ProgectData[] = JSON.parse(fs.readFileSync(Progect.dataPath, 'utf8'));
+    title: string;
+    path: string;
+
+    constructor(progectData: ProgectData) {
+        this.title = progectData.title
+        this.path = progectData.path
+    }
 
     // 引数が多いなこれ！！
     // オブジェクト指向かどうか怪しい・・・・・・・
 
     // この関数はテスト用（ライブラリーの関係でthis.Dataに値が入らないため）
     static loadData() {
-        this.Data = JSON.parse(fs.readFileSync(ProgectData.dataPath, 'utf8'));
+        this.Data = JSON.parse(fs.readFileSync(Progect.dataPath, 'utf8'));
     }
 
-    static rootDataIsDuplicated(rootPath: string): boolean {
-        return Boolean(this.fetchRootData(rootPath));
+    private static pathIsDuplicated(path: string): boolean {
+        return Boolean(Progect.findByPath(path));
     }
 
-    static fileDataIsDuplicated(rootPath: string, filePath: string): boolean {
-        return Boolean(this.fetchFileData(rootPath, filePath));
+    private static serialize(progect: Progect): ProgectData {
+        return progect;
+    }
+
+    static deserialize(progectData: ProgectData): Progect {
+        const progect = new Progect(progectData);
+        return progect;
     }
 
     // CREATE
-    static createRootData(rootPath: string): RootData | undefined {
-        if (this.rootDataIsDuplicated(rootPath)) {
+    static create(progectData: ProgectData): Progect | undefined {
+        if (Progect.pathIsDuplicated(progectData.path)) {
             return undefined;
         }
-        const newRootData = {
-            rootPath: rootPath,
-            files: []
-        }
-        this.Data.push(newRootData);
-        this.save();
-        return newRootData;
-    }
-
-    static createFileData(rootPath: string, filePath: string): FileData | undefined {
-        if (this.fileDataIsDuplicated(rootPath, filePath)) {
-            return undefined;
-        }
-        const newFileData = {
-            filePath: filePath,
-            messages: []
-        }
-        // IsDuplicatedが何回も呼び出される
-        // 無駄無駄！！！！
-        const rootData = this.fetchRootData(rootPath);
-        if (rootData) {
-            rootData.files.push(newFileData);
-            this.save();
-            return newFileData;
-        }
-        return undefined;
+        Progect.Data.push(progectData);
+        Progect.save();
+        const progect = Progect.deserialize(progectData);
+        return progect;
     }
 
     // READ
-    static fetchRootData(rootPath: string): RootData | undefined {
-        return this.Data.find(d => d.rootPath === rootPath);
-    }
-
-    private static fetchRootDataId(rootPath: string): number {
-        return this.Data.findIndex(d => d.rootPath === rootPath);
-    }
-
-    static fetchFileData(rootPath: string, filePath: string): FileData | undefined {
-        const rootData = this.fetchRootData(rootPath);
-        if (rootData) { 
-            return rootData.files.find(f => f.filePath == filePath);
+    static findById(id: number): Progect | undefined {
+        if (id >= Progect.Data.length || id < 0) {
+            return undefined;
         }
-        return undefined;
+        const progectData = Progect.Data[id];
+        const progect = Progect.deserialize(progectData);
+        return progect;
     }
 
-    private static fetchFileDataId(rootPath: string, filePath: string): number {
-        const rootData = this.fetchRootData(rootPath);
-        if (rootData) {
-            return rootData.files.findIndex(f => f.filePath == filePath);
-        }
-        return -1;
+    // 抽象化の余地あり
+    static findByPath(path: string): Progect | undefined {
+        const progectData = this.Data.find(d => d.path == path);
+        const progect = progectData && Progect.deserialize(progectData);
+        return progect;
     }
+
+    // UPDATE
+    // update(progectData: ProgectData) {
+
+    // }
 
     // DESTROY
-    static deleteRootData(rootPath: string) {
-        const rootId = this.fetchRootDataId(rootPath);
-        this.Data.splice(rootId, 1);
-        this.save();
-    }
-
-    static deleteFileData(rootPath: string, filePath: string) {
-        let rootData = this.fetchRootData(rootPath);
-        const fileId = this.fetchFileDataId(rootPath, filePath);
-        if (fileId == -1) {
-            return;
-        }
-        if (rootData) {
-            rootData.files.splice(fileId, 1);
-            this.save();
-        }
-    }
+    // static deleteRootData(progectPath: string) {
+    //     const rootId = this.fetchRootDataId(progectPath);
+    //     this.Data.splice(rootId, 1);
+    //     this.save();
+    // }
 
     static save(){
-        console.dir(this.Data);
-        fs.writeFileSync(this.dataPath, JSON.stringify(this.Data, null, "\t"));
+        fs.writeFileSync(Progect.dataPath, JSON.stringify(Progect.Data, null, "\t"));
     }
+}
+
+export interface ProgectData {
+    title: string,
+    path: string
 }

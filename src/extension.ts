@@ -1,7 +1,8 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
-import { File } from './models/file';
+import { Progect } from './models/project';
+// import { File } from './models/file';
 import ViewLoader from "./view/ViewLoader";
 
 // this method is called when your extension is activated
@@ -33,8 +34,11 @@ function postFileMessags(viewLoader: ViewLoader) {
 	const filePath = vscode.window.activeTextEditor?.document.fileName
 	const rootPath = vscode.workspace.rootPath;
 	if (rootPath && filePath) {
-		const file = File.findBy(rootPath, filePath);
-		viewLoader._panel?.webview.postMessage({messages: file?.messages});
+		const progect = Progect.findById(0);
+		console.log(progect?.title);
+		
+		// const file = File.findBy(rootPath, filePath);
+		// viewLoader._panel?.webview.postMessage({messages: file?.messages});
 	}
 }
 
