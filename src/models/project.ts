@@ -3,17 +3,20 @@ import { server } from '../consts/data_path';
 
 export class Progect {
     private static dataPath = server.progetctDataPath;
-    private static Data: ProgectData[] = JSON.parse(fs.readFileSync(Progect.dataPath, 'utf8'));
-    title: string;
-    path: string;
+    private static Data: [ProgectData | null] = JSON.parse(fs.readFileSync(Progect.dataPath, 'utf8'));
+    private id: number;
+    readonly title: string;
+    readonly path: string;
 
-    constructor(progectData: ProgectData) {
+    constructor(progectData: ProgectData, id: number) {
+        this.id = id;
         this.title = progectData.title
         this.path = progectData.path
     }
 
-    // 引数が多いなこれ！！
-    // オブジェクト指向かどうか怪しい・・・・・・・
+    getId(): number {
+        return this.id;
+    }
 
     // この関数はテスト用（ライブラリーの関係でthis.Dataに値が入らないため）
     static loadData() {
@@ -24,12 +27,8 @@ export class Progect {
         return Boolean(Progect.findByPath(path));
     }
 
-    private static serialize(progect: Progect): ProgectData {
-        return progect;
-    }
-
-    static deserialize(progectData: ProgectData): Progect {
-        const progect = new Progect(progectData);
+    static deserialize(progectData: ProgectData, id: number): Progect {
+        const progect = new Progect(progectData, id);
         return progect;
     }
 
@@ -40,40 +39,54 @@ export class Progect {
         }
         Progect.Data.push(progectData);
         Progect.save();
-        const progect = Progect.deserialize(progectData);
+        const progect = Progect.deserialize(progectData, Progect.Data.length - 1);
         return progect;
     }
 
     // READ
     static findById(id: number): Progect | undefined {
-        if (id >= Progect.Data.length || id < 0) {
+        const progectData = Progect.Data[id];
+        if (id >= Progect.Data.length || id < 0, progectData == null ) {
             return undefined;
         }
-        const progectData = Progect.Data[id];
-        const progect = Progect.deserialize(progectData);
+        
+        const progect = Progect.deserialize(progectData, id);
         return progect;
     }
 
     // 抽象化の余地あり
     static findByPath(path: string): Progect | undefined {
-        const progectData = this.Data.find(d => d.path == path);
-        const progect = progectData && Progect.deserialize(progectData);
-        return progect;
+        const id = Progect.Data.findIndex(d => d?.path == path);
+        return Progect.findById(id);
     }
 
     // UPDATE
-    // update(progectData: ProgectData) {
+    update(nextProgectData: ProgectData) {
+        const path = nextProgectData.path;
+        if (this.path != path && Progect.pathIsDuplicated(path) || this.id == -1) {
+            return;
+        }
 
-    // }
+        // update data
+        Progect.Data[this.id] = nextProgectData;
+        Progect.save();
+
+        // update instance
+        Object.assign(this, Progect.deserialize(nextProgectData, this.id));
+    }
 
     // DESTROY
-    // static deleteRootData(progectPath: string) {
-    //     const rootId = this.fetchRootDataId(progectPath);
-    //     this.Data.splice(rootId, 1);
-    //     this.save();
-    // }
+    destroy() {
+        Progect.Data[this.id] = null;
+        Progect.save();
+        // こうしたいけど、できない
+        // Object.assign(this, null);
+        // 代わりに・・
+        this.id = -1;
+    }
 
-    static save(){
+    private static save(){
+        // 例外処理する？？
         fs.writeFileSync(Progect.dataPath, JSON.stringify(Progect.Data, null, "\t"));
     }
 }
