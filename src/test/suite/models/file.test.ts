@@ -1,140 +1,161 @@
-// import * as assert from 'assert';
-// import { beforeEach, afterEach, describe, it } from 'mocha';
-// import { File, FileData } from '../../../models/file';
-// import { ProgectData } from '../../../models/project';
-// import { RootData } from '../../../models/root';
+import * as assert from 'assert';
+import { beforeEach, afterEach, describe, it } from 'mocha';
+import { File, FileData } from '../../../models/file';
+import { destroyedId } from '../../../consts/number';
+import { Progect, ProgectData } from '../../../models/project';
 
-// // requireでいい？？importで統一？？
-// const mockfs = require('mock-fs');
+// requireでいい？？importで統一？？
+const mockfs = require('mock-fs');
 
-// const existRootPath = "/root/exist";
-// const existFilePath = `${existRootPath}/file.txt`;
-// const existFileMessages = ["0", "1", "2"];
-// const existFileMessagesLastIndex = existFileMessages.length - 1;
-// const existFileData: FileData = {
-//     filePath: existFilePath,
-//     messages: existFileMessages
-// }
-// const existRootData: RootData = {
-//     rootPath: existRootPath,
-//     files: [existFileData]
-// }
+// 下記の変数たちの代入をmock作成後に行いたいで御座んす
 
-// const testData = [existRootData]
-// const testDataString = JSON.stringify(testData, null, "\t")
+const existProgectId = 1;
+const existProgectData: ProgectData = {
+    title: "exist progect",
+    path: "/root/exist"
+}
+const testProgectData = [null, existProgectData]
+const testProgectDataString = JSON.stringify(testProgectData, null, "\t");
 
-// describe('File Test Suite', () => {
-//     beforeEach(() => {
-//         // この書き方はスマートではない
-//         // "data"ってやだな！！
-//         // 入っている関数使えるのではdirectoryごと作るてきな！
-//         // リファクタリング対象として進めましょう
-//         mockfs({
-//             data: {
-//                 "progect_data.json": testDataString
-//             }
-//         });
-//         ProgectData.loadData();
-//     });
+const existFileId = 1;
+const existFileData: FileData = {
+    path: "existText.txt",
+    progectId: existProgectId
+}
 
-//     afterEach(() => {
-//         mockfs.restore();
-//     });
+const anotherExistFileId = 2;
+const anotherExistFileData: FileData = {
+    path: "anoterExistText.txt",
+    progectId: existProgectId
+}
 
-//     // CREATE
-//     // データの保存確認はProgectDataクラステストの役割！！
-//     // ふと思った、
-// 	it('cretate newFile', () => {
-//         const filePath = `${existRootPath}/new_file.txt`
-//         const file = File.create(existRootPath, filePath);
-//         assert.strictEqual(file?.filePath, filePath);
+const testFileData = [null, existFileData, anotherExistFileData];
+const testFileDataString = JSON.stringify(testFileData, null, "\t");
 
-//         const fileForConfirm = File.findBy(existRootPath, filePath);
-//         assert.deepStrictEqual(fileForConfirm?.filePath, filePath);
-//     });
+describe('FileData Test Suite', () => {
+    beforeEach(() => {
+        mockfs({
+            mpf_server_data: {
+                "progect.json": testProgectDataString
+            },
+            mpf_client_data: {
+                "file.json": testFileDataString
+            }
+        });
+        Progect.loadData();
+        File.loadData();
+    });
 
-//     it('cannot cretate existFile', () => {
-//         const file = File.create(existRootPath, existFilePath);
-//         assert.strictEqual(file, undefined);
-//     });
+    afterEach(() => {
+        mockfs.restore();
+    });
 
-//     it('cannot cretate existFile with newRoot', () => {
-//         const file = File.create('/root/new', existFilePath);
-//         assert.strictEqual(file, undefined);
-//     });
+    it('check mock', () => {
+        const existFile = File.deserialize(existFileData, existFileId);
 
-//     // READ
-//     it('find existFile', () => {
-//         const file = File.findBy(existRootPath, existFilePath);
-//         assert.strictEqual(file?.filePath, existFilePath);
-//     });
+        const file = File.findByPath(existFile.relativePath);
+        assert.deepStrictEqual(file, existFile, "It should save data");
+     });
 
-//     it('cannot find notExistFile', () => {
-//         const file = File.findBy(existRootPath, `${existRootPath}/not_exist_file.txt`);
-//         assert.strictEqual(file, undefined);
-//     });
+    // CREATE
+	it('cretate', () => {
+        const path = "newText.txt";
+        const fileData: FileData = {
+            path: path,
+            progectId: existProgectId
+        }
+        const expectedFile = File.deserialize(fileData, anotherExistFileId + 1);
+        const progect = File.create(fileData);
+        assert.deepStrictEqual(progect, expectedFile);
 
-//     it('cannot find existFile with notExistRootPath', () => {
-//         const file = File.findBy("root/not_exist", existFilePath);
-//         assert.strictEqual(file, undefined);
-//     });
+        const fileDataForConfirm = File.findByPath(path);
+        assert.deepStrictEqual(fileDataForConfirm, expectedFile);
+    });
 
-//     // UPDATE
-//     it('updatate existFile', () => {
-//         const updatePath = `${existRootPath}/update.txt`;
-//         let file = File.findBy(existRootPath, existFilePath);
-//         file?.update(updatePath);
-//         assert.strictEqual(file?.filePath, updatePath);
+    // unique path???
+    it('cannot cretate existFile', () => {
+        const existFile = File.create(existFileData);
+        assert.strictEqual(existFile, undefined);
+    });
 
-//         const previousFile = File.findBy(existRootPath, existFilePath);
-//         const nextFile = File.findBy(existRootPath, updatePath);
-//         assert.strictEqual(previousFile, undefined);
-//         assert.strictEqual(nextFile?.filePath, updatePath);
-//     });
+    // READ
+    it('findById', () => {
+        const existFile = File.deserialize(existFileData, existFileId);
 
-//     it('create Message', () => {
-//         const message = "message"
-//         let file = File.findBy(existRootPath, existFilePath);
-//         file?.createMessage(message);
-//         assert.strictEqual(file?.messages[existFileMessagesLastIndex + 1], message);
+        const file = File.findById(existFileId);
+        assert.deepStrictEqual(file, existFile);
+    });
 
-//         const updateFile = File.findBy(existRootPath, existFilePath);
-//         assert.strictEqual(updateFile?.messages[existFileMessagesLastIndex + 1], message);
-//     });
+    it('cannot findById', () => {
+        const notExistFileId = 33;
+        const file = File.findById(notExistFileId);
+        assert.deepStrictEqual(file, undefined);
+    });
 
-//     it('updatate message', () => {
-//         const index = 2;
-//         const message = "2 is updated";
-//         let file = File.findBy(existRootPath, existFilePath);
-//         file?.updateMessage(message, index);
-//         assert.strictEqual(file?.messages[index], message);
+    it('findByPath', () => {
+        const existFile = File.deserialize(existFileData, existFileId);
 
-//         const updateFile = File.findBy(existRootPath, existFilePath);
-//         assert.strictEqual(updateFile?.messages[index], message);
-//     });
+        const file = File.findByPath(existFile.relativePath);
+        assert.deepStrictEqual(file, existFile);
+    });
 
-//     it('delete message', () => {
-//         const index = 1;
-//         let file = File.findBy(existRootPath, existFilePath);
-//         const message = file?.messages[index]
-//         file?.deleteMessage(index);
-//         if (message) {
-//             assert.notStrictEqual(file?.messages.indexOf(message), message);
+    it('cannot findByPath', () => {
+        const notExistFilePath = "notExist.txt";
+        const file = File.findByPath(notExistFilePath);
+        assert.deepStrictEqual(file, undefined);
+    });
 
-//             const updateFile = File.findBy(existRootPath, existFilePath);
-//             assert.notStrictEqual(updateFile?.messages[index], message);
-//         } else {
-//             assert.ok(false, "It is unexpeced error. Message should not be undefined.")
-//         }
-//     });
+    // UPDATE
+    it('can update path to newPath', () => {
+        const file = File.findById(existFileId);
+        if (file == undefined) {
+            assert.ok(false, "Unexpected error. Cannot save existFileData with mock");
+        }
+        const nextFileData = {
+            path: "nextExistText.txt",
+            progectId: existFileId
+        }
+        const nextFile = File.deserialize(nextFileData, existFileId);
+        file.update(nextFileData);
+        assert.deepStrictEqual(file, nextFile);
 
-//     // DELETE
-//     it('delete file', () => {
-//         let file = File.findBy(existRootPath, existFilePath);
-//         file?.destroy();
-//         const destroyedfile = File.findBy(existRootPath, existFilePath);
-//         // 本当はこの仕様にしたい！！
-//         // assert.strictEqual(file, undefined);
-//         assert.strictEqual(destroyedfile, undefined);
-//     });
-// });
+        const fileForConfirm = File.findById(existFileId);
+        assert.deepStrictEqual(fileForConfirm, nextFile);
+    });
+
+    it('cannot update existFilePath to anotherExistFilePath', () => {
+        const file = File.findById(existFileId);
+        if (file == undefined) {
+            assert.ok(false, "Unexpected error. Cannot save existFileData with mock");
+        }
+        const nextFileData = {
+            path: anotherExistFileData.path,
+            progectId: existProgectId
+        }        
+        const existFile = File.deserialize(existFileData, existFileId);
+
+        file.update(nextFileData);
+        assert.deepStrictEqual(file, existFile);
+
+        const fileForConfirm = File.findById(existFileId);
+        assert.deepStrictEqual(fileForConfirm, existFile);
+    });
+
+    // 後ほど、pogectIdを変えるパターンもありか？？
+
+    // DELETE
+    it('can delete existFile', () => {
+        const file = File.findById(existFileId);
+        if (file == undefined) {
+            assert.ok(false, "Unexpected error. Cannot save existFileData with mock");
+        }
+        
+        // instance
+        file.destroy();
+        assert.deepStrictEqual(file.getId(), destroyedId);
+
+        // data
+        const fileForConfirm = File.findById(existFileId);
+        assert.deepStrictEqual(fileForConfirm, undefined);
+    });
+});

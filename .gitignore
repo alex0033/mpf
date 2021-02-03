@@ -4,3 +4,4 @@ node_modules
 .vscode-test/
 *.vsix
 configViewer
+mpf_client_data

@@ -1,8 +1,9 @@
 import * as fs from 'fs';
 import { server } from '../consts/data_path';
+import { destroyedId } from '../consts/number';
 
 export class Progect {
-    private static dataPath = server.progetctDataPath;
+    private static dataPath = server.progectDataPath;
     private static Data: [ProgectData | null] = JSON.parse(fs.readFileSync(Progect.dataPath, 'utf8'));
     private id: number;
     readonly title: string;
@@ -63,7 +64,7 @@ export class Progect {
     // UPDATE
     update(nextProgectData: ProgectData) {
         const path = nextProgectData.path;
-        if (this.path != path && Progect.pathIsDuplicated(path) || this.id == -1) {
+        if (this.path != path && Progect.pathIsDuplicated(path) || this.id == destroyedId) {
             return;
         }
 
@@ -82,7 +83,7 @@ export class Progect {
         // こうしたいけど、できない
         // Object.assign(this, null);
         // 代わりに・・
-        this.id = -1;
+        this.id = destroyedId;
     }
 
     private static save(){

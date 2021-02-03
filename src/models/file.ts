@@ -1,74 +1,111 @@
-// import { ProgectData } from './project';
+import * as fs from 'fs';
+import * as path from 'path';
+import { client } from '../consts/data_path';
+import { destroyedId } from '../consts/number';
+import { Progect } from './project';
 
-// export class File {
-//     private rootPath: string;
-//     private Data: FileData;
-//     filePath: string;
-//     messages: string[];
+export class File {
+    private static dataPath = client.fileDataPath;
+    private static Data: [FileData | null] = File.dataPath && JSON.parse(fs.readFileSync(File.dataPath, 'utf8'));
+    private id: number;
+    readonly relativePath: string;
+    readonly absolutePath: string;
+    readonly progectId: number;
 
-//     constructor(rootPath: string, filePath: string, fileData: FileData) {
-//         this.rootPath = rootPath;
-//         this.filePath = filePath;
-//         this.messages = [...fileData.messages];
-//         this.Data = fileData;
-//     }
+    constructor(fileData: FileData, id: number) {
+        this.id = id;
+        this.progectId = fileData.progectId
+        this.relativePath = fileData.path
+        this.absolutePath = this.joinPath();
+    }
 
-//     // 下記 3 functionsは・・extends候補
-//     // connectData名かぶり&意味が異なり分かりにくい
-//     private connectData() {
-//         this.filePath = this.Data.filePath;
-//         this.messages = [...this.Data.messages];
-//         ProgectData.save();
-//     }
+    joinPath(): string {
+        const progect = Progect.findById(this.progectId);
+        if (progect) {
+            return path.join(progect.path, this.relativePath);
+        }
+        this.id = destroyedId;
+        return "";
+    }
 
-//     // CREATE
-//     static create(rootPath: string, filePath: string): File | undefined {
-//         const fileData = ProgectData.createFileData(rootPath, filePath);
-//         const file = fileData && new File(rootPath, filePath, fileData);
-//         return file;
-//     }
+    getId(): number {
+        return this.id;
+    }
 
-//     // READ
-//     static findBy(rootPath: string, filePath: string): File | undefined {
-//         const fileData = ProgectData.fetchFileData(rootPath, filePath);
-//         const file = fileData && new File(rootPath, filePath, fileData);
-//         return file;
-//     }
+    // この関数はテスト用（ライブラリーの関係でFile.Dataに値が入らないため）
+    static loadData() {
+        File.Data = File.dataPath && JSON.parse(fs.readFileSync(File.dataPath, 'utf8'));
+    }
 
-//     // UPDATE
-//     update(filePath: string) {
-//         if (ProgectData.fileDataIsDuplicated(this.rootPath, filePath)) {      
-//             return;
-//         }
-//         this.Data.filePath = filePath;
-//         this.connectData();
-//     }
+    private static pathIsDuplicated(path: string): boolean {
+        return Boolean(File.findByPath(path));
+    }
 
-//     createMessage(message: string) {
-//         this.Data.messages.push(message);
-//         this.connectData();
-//     }
+    static deserialize(fileData: FileData, id: number): File {
+        const file = new File(fileData, id);
+        return file;
+    }
 
-//     updateMessage(newMessage: string, index: number) {
-//         this.Data.messages[index] = newMessage;
-//         this.connectData();
-//     }
+    // CREATE
+    static create(fileData: FileData): File | undefined {
+        if (File.pathIsDuplicated(fileData.path)) {
+            return undefined;
+        }
+        File.Data.push(fileData);
+        File.save();
+        const file = File.deserialize(fileData, File.Data.length - 1);
+        return file;
+    }
 
-//     deleteMessage(index: number){
-//         // 1 is magic_number??
-//         this.Data.messages.splice(index, 1);
-//         this.connectData();
-//     }
+    // READ
+    static findById(id: number): File | undefined {
+        const fileData = File.Data[id];
+        if (id >= File.Data.length || id < 0, fileData == null ) {
+            return undefined;
+        }
 
-//     // DELETE
-//     destroy() {
-//         ProgectData.deleteFileData(this.rootPath, this.filePath);
-//         // thisがundefinedにならないなー
-//         Object.assign(this, undefined);
-//     }
-// }
+        const file = File.deserialize(fileData, id);
+        return file;
+    }
 
-// export interface FileData {
-//     filePath: string;
-//     messages: string[];
-// }
+    // 抽象化の余地あり
+    static findByPath(path: string): File | undefined { 
+        const id = File.Data.findIndex(d => d?.path == path);
+        return File.findById(id);
+    }
+
+    // UPDATE
+    update(nextFileData: FileData) {
+        const path = nextFileData.path;
+        if (this.relativePath != path && File.pathIsDuplicated(path) || this.id == destroyedId) {
+            return;
+        }
+
+        // update data
+        File.Data[this.id] = nextFileData;
+        File.save();
+
+        // update instance
+        Object.assign(this, File.deserialize(nextFileData, this.id));
+    }
+
+    // DESTROY
+    destroy() {
+        File.Data[this.id] = null;
+        File.save();
+        // こうしたいけど、できない
+        // Object.assign(this, null);
+        // 代わりに・・
+        this.id = destroyedId;
+    }
+
+    private static save(){
+        // 例外処理する？？
+        File.dataPath && fs.writeFileSync(File.dataPath, JSON.stringify(File.Data, null, "\t"));
+    }
+}
+
+export interface FileData {
+    path: string;
+    progectId: number;
+}

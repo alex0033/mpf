@@ -1,6 +1,7 @@
 import * as assert from 'assert';
 import { beforeEach, afterEach, describe, it } from 'mocha';
 import { Progect, ProgectData } from '../../../models/project';
+import { destroyedId } from '../../../consts/number';
 
 // requireでいい？？importで統一？？
 const mockfs = require('mock-fs');
@@ -22,7 +23,7 @@ const anotherExistProgect = Progect.deserialize(anotherExistProgectData, another
 const testData = [null, existProgectData, anotherExistProgectData];
 const testDataString = JSON.stringify(testData, null, "\t");
 
-describe('ProgectData Test Suite', () => {
+describe('Progect Test Suite', () => {
     beforeEach(() => {
         mockfs({
             mpf_server_data: {
@@ -142,7 +143,6 @@ describe('ProgectData Test Suite', () => {
 
     // DELETE
     it('can delete existProgect', () => {
-        const progectsSize = testData.length;
         const progect = Progect.findById(existProgectId);
         if (progect == undefined) {
             assert.ok(false, "Unexpected error. Cannot save existProgectData with mock");
@@ -150,7 +150,7 @@ describe('ProgectData Test Suite', () => {
         
         // instance
         progect.destroy();
-        assert.deepStrictEqual(progect.getId(), -1);
+        assert.deepStrictEqual(progect.getId(), destroyedId);
 
         // data
         const progectForConfirm = Progect.findById(existProgectId);
