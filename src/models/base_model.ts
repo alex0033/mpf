@@ -1,6 +1,10 @@
+// validateメソッド名が分かりにくい
+// 無理やり感のある型変換：typescriptの特性を活かしていない
+
 import * as fs from 'fs';
 import { destroyedId } from '../consts/number';
 
+// 自己参照があるため、abstractではない
 export class BaseModel<SubClassData> {
     // should override
     protected static dataPath: string;
@@ -55,8 +59,8 @@ export class BaseModel<SubClassData> {
             return undefined;
         }
 
-        const file = this.deserialize(subClassData, id) as SubClass;
-        return file;
+        const subClass = this.deserialize(subClassData, id) as SubClass;
+        return subClass;
     }
 
     // 抽象化の余地あり

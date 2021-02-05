@@ -3,7 +3,7 @@ import * as path from 'path';
 import { client } from '../consts/data_path';
 import { destroyedId } from '../consts/number';
 import { BaseModel } from './base_model';
-import { Progect } from './project';
+import { Progect, ProgectData } from './project';
 
 export class File extends BaseModel<FileData> {
     protected static dataPath = client.fileDataPath;
@@ -20,7 +20,7 @@ export class File extends BaseModel<FileData> {
     }
 
     private joinPath(): string {
-        const progect = Progect.findById(this.progectId);
+        const progect: Progect | undefined = Progect.findById(this.progectId);
         if (progect) {
             return path.join(progect.path, this.relativePath);
         }
