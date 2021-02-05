@@ -3,12 +3,12 @@ import { beforeEach, afterEach, describe, it } from 'mocha';
 import { File, FileData } from '../../../models/file';
 import { destroyedId } from '../../../consts/number';
 import { Progect, ProgectData } from '../../../models/project';
+import { BaseModel } from '../../../models/base_model';
 
 // requireでいい？？importで統一？？
 const mockfs = require('mock-fs');
 
 // 下記の変数たちの代入をmock作成後に行いたいで御座んす
-
 const existProgectId = 1;
 const existProgectData: ProgectData = {
     title: "exist progect",
@@ -50,12 +50,12 @@ describe('FileData Test Suite', () => {
         mockfs.restore();
     });
 
-    it('check mock', () => {
-        const existFile = File.deserialize(existFileData, existFileId);
+    // it('check mock', () => {
+    //     const existFile = File.deserialize(existFileData, existFileId);
 
-        const file = File.findByPath(existFile.relativePath);
-        assert.deepStrictEqual(file, existFile, "It should save data");
-     });
+    //     const file = File.findByPath(existFile.relativePath);
+    //     assert.deepStrictEqual(file, existFile, "It should save data");
+    //  });
 
     // CREATE
 	it('cretate', () => {
@@ -65,8 +65,9 @@ describe('FileData Test Suite', () => {
             progectId: existProgectId
         }
         const expectedFile = File.deserialize(fileData, anotherExistFileId + 1);
-        const progect = File.create(fileData);
-        assert.deepStrictEqual(progect, expectedFile);
+        const file = File.create(fileData);
+        
+        assert.deepStrictEqual(file, expectedFile);
 
         const fileDataForConfirm = File.findByPath(path);
         assert.deepStrictEqual(fileDataForConfirm, expectedFile);
