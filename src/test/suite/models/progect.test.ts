@@ -11,14 +11,12 @@ const existProgectData: ProgectData = {
     title: "exist progect",
     path: "/root/exist"
 }
-const existProgect = Progect.deserialize(existProgectData, existProgectId);
 
 const anotherExistProgectId = 2;
 const anotherExistProgectData: ProgectData = {
     title: "another exist progect",
     path: "/root/another_exist"
 }
-const anotherExistProgect = Progect.deserialize(anotherExistProgectData, anotherExistProgectId);
 
 const testData = [null, existProgectData, anotherExistProgectData];
 const testDataString = JSON.stringify(testData, null, "\t");
@@ -37,11 +35,6 @@ describe('Progect Test Suite', () => {
     afterEach(() => {
         mockfs.restore();
     });
-
-    it('check mock', () => {
-        const progect = Progect.findByPath(existProgect.path);
-        assert.deepStrictEqual(progect, existProgect, "It should save data");
-     });
 
     // CREATE
 	it('cretate', () => {
@@ -67,6 +60,7 @@ describe('Progect Test Suite', () => {
 
     // READ
     it('findById', () => {
+        const existProgect: Progect = Progect.deserialize(existProgectData, existProgectId);
         const progect = Progect.findById(existProgectId);
         assert.deepStrictEqual(progect, existProgect);
     });
@@ -78,6 +72,7 @@ describe('Progect Test Suite', () => {
     });
 
     it('findByPath', () => {
+        const existProgect: Progect = Progect.deserialize(existProgectData, existProgectId);
         const progect = Progect.findByPath(existProgect.path);
         assert.deepStrictEqual(progect, existProgect);
     });
@@ -90,7 +85,7 @@ describe('Progect Test Suite', () => {
 
     // UPDATE
     it('can update title', () => {
-        const progect = Progect.findById(existProgectId);
+        const progect: Progect | undefined = Progect.findById(existProgectId);
         if (progect == undefined) {
             assert.ok(false, "Unexpected error. Cannot save existProgectData with mock");
         }
@@ -107,7 +102,7 @@ describe('Progect Test Suite', () => {
     });
 
     it('can update path to newPath', () => {
-        const progect = Progect.findById(existProgectId);
+        const progect: Progect | undefined = Progect.findById(existProgectId);
         if (progect == undefined) {
             assert.ok(false, "Unexpected error. Cannot save existProgectData with mock");
         }
@@ -124,13 +119,14 @@ describe('Progect Test Suite', () => {
     });
 
     it('cannot update existProgectPath to anotherExistProgectPath', () => {
-        const progect = Progect.findById(existProgectId);
+        const existProgect: Progect = Progect.deserialize(existProgectData, existProgectId);
+        const progect: Progect | undefined = Progect.findById(existProgectId);
         if (progect == undefined) {
             assert.ok(false, "Unexpected error. Cannot save existProgectData with mock");
         }
         const nextProgectData = {
             title: progect.title,
-            path: anotherExistProgect.path
+            path: anotherExistProgectData.path
         }
         const nextProgect = Progect.deserialize(nextProgectData, existProgectId);
 

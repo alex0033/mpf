@@ -34,7 +34,7 @@ function postFileMessags(viewLoader: ViewLoader) {
 	const filePath = vscode.window.activeTextEditor?.document.fileName
 	const rootPath = vscode.workspace.rootPath;
 	if (rootPath && filePath) {
-		const progect = Progect.findById(0);
+		const progect: Progect | undefined = Progect.findById(0);
 		console.log(progect?.title);
 		
 		// const file = File.findBy(rootPath, filePath);

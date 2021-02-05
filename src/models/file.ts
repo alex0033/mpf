@@ -3,7 +3,7 @@ import * as path from 'path';
 import { client } from '../consts/data_path';
 import { destroyedId } from '../consts/number';
 import { BaseModel } from './base_model';
-import { Progect, ProgectData } from './project';
+import { Progect } from './project';
 
 export class File extends BaseModel<FileData> {
     protected static dataPath = client.fileDataPath;

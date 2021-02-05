@@ -5,7 +5,7 @@ import * as fs from 'fs';
 import { destroyedId } from '../consts/number';
 
 // 自己参照があるため、abstractではない
-export class BaseModel<SubClassData> {
+export class BaseModel<SubClassData, SubClass extends typeof BaseModel> {
     // should override
     protected static dataPath: string;
     protected static Data: any[];
@@ -32,14 +32,15 @@ export class BaseModel<SubClassData> {
         return false;
     }
 
-    static deserialize<SubClassData, SubClass extends BaseModel<SubClassData>
-    >(subClassData: SubClassData, id: number): SubClass {
-        const subClass = new this(subClassData, id) as SubClass;
+    static deserialize<SubClassData, SubClass>(
+        subClassData: SubClassData, id: number): SubClass {
+        // 問題あり？？
+        const subClass = new this(subClassData, id) as unknown as SubClass;
         return subClass;
     }
 
     // CREATE
-    static create<SubClassData, SubClass extends BaseModel<SubClassData>
+    static create<SubClassData, SubClass extends typeof BaseModel
     >(subClassData: SubClassData): SubClass | undefined {
         if (this.validate(subClassData)) {
             return undefined;
@@ -51,8 +52,7 @@ export class BaseModel<SubClassData> {
     }
 
     // READ
-    static findById<
-        SubClassData, SubClass extends BaseModel<SubClassData>
+    static findById<SubClass extends typeof BaseModel
         >(id: number): SubClass | undefined {
         const subClassData = this.Data[id];
         if (id >= this.Data.length || id < 0, subClassData == null ) {
@@ -71,24 +71,24 @@ export class BaseModel<SubClassData> {
 
     // UPDATE
     update(nextSubClassData: SubClassData) {
-        if (this.constructor.validate(nextSubClassData, this.id)) {
+        if ((this.constructor as SubClass).validate(nextSubClassData, this.id)) {
             return;
         }
         // この関数内でも抽象化による・・
         // 不完全な型のnextSubClassDataでも変更したい・・・
 
         // update data
-        this.constructor.Data[this.id] = nextSubClassData;
-        this.constructor.save();
+        (this.constructor as SubClass).Data[this.id] = nextSubClassData;
+        (this.constructor as SubClass).save();
 
         // update instance
-        Object.assign(this, this.constructor.deserialize(nextSubClassData, this.id));
+        Object.assign(this, (this.constructor as SubClass).deserialize(nextSubClassData, this.id));
     }
 
     // DESTROY
     destroy() {
-        this.constructor.Data[this.id] = null;
-        this.constructor.save();
+        (this.constructor as SubClass).Data[this.id] = null;
+        (this.constructor as SubClass).save();
         // こうしたいけど、できない
         // Object.assign(this, null);
         // 代わりに・・

@@ -49,13 +49,6 @@ describe('FileData Test Suite', () => {
         mockfs.restore();
     });
 
-    // it('check mock', () => {
-    //     const existFile = File.deserialize(existFileData, existFileId);
-
-    //     const file = File.findByPath(existFile.relativePath);
-    //     assert.deepStrictEqual(file, existFile, "It should save data");
-    //  });
-
     // CREATE
 	it('cretate', () => {
         const path = "newText.txt";
