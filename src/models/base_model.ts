@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import { destroyedId } from '../consts/number';
 
-export class BaseModel<SubClass, SubClassData> {
+export class BaseModel<SubClassData> {
     // should override
     protected static dataPath: string;
     protected static Data: any[];
@@ -24,47 +24,20 @@ export class BaseModel<SubClass, SubClassData> {
 
     // should overrride
     // 関数を引数にする？？
-    protected static validate(): boolean {
+    protected static validate(any: any, id?: number): boolean {
         return false;
     }
 
-    // static deserialize<SubClassData, SubClass extends BaseModel<SubClass, SubClassData>>(
-    //     this: {new(subClassData :SubClassData, id: number): SubClass},
-    //     subClassData: SubClassData, id: number
-    //     ): SubClass {
-    //     const subClass = new this(subClassData, id);
-    //     return subClass;
-    // }
-
-    static deserialize<SubClassData, SubClass extends BaseModel<SubClass, SubClassData>>(subClassData: SubClassData, id: number): SubClass {
+    static deserialize<SubClassData, SubClass extends BaseModel<SubClassData>
+    >(subClassData: SubClassData, id: number): SubClass {
         const subClass = new this(subClassData, id) as SubClass;
         return subClass;
     }
 
     // CREATE
-    // static create<SubClassData, SubClass extends BaseModel<SubClass, SubClassData>>(
-    //     this: {
-    //         new(subClassData :SubClassData, id: number): SubClass,
-    //         save(): void,
-    //         validate(): boolean,
-    //         deserialize(
-    //             subClassData: SubClassData, id: number
-    //             ): SubClass,
-    //         Data: SubClassData[]
-    //     },
-    //     subClassData: SubClassData
-    //     ): SubClass | undefined {
-    //     if (this.validate()) {
-    //         return undefined;
-    //     }
-    //     this.Data.push(subClassData);
-    //     this.save();
-    //     const subClass = this.deserialize(subClassData, this.Data.length - 1);
-    //     return subClass;
-    // }
-    static create<SubClassData, SubClass extends BaseModel<SubClass, SubClassData>
+    static create<SubClassData, SubClass extends BaseModel<SubClassData>
     >(subClassData: SubClassData): SubClass | undefined {
-        if (this.validate()) {
+        if (this.validate(subClassData)) {
             return undefined;
         }
         this.Data.push(subClassData);
@@ -74,25 +47,8 @@ export class BaseModel<SubClass, SubClassData> {
     }
 
     // READ
-    // static findById<SubClassData, SubClass extends BaseModel<SubClass, SubClassData>>(
-    //     this: {
-    //         new(subClassData :SubClassData, id: number): SubClass,
-    //         deserialize(subClassData: SubClassData, id: number): SubClass,
-    //         Data: SubClassData[]
-    //     },
-    //     id: number
-    //     ): SubClass | undefined {
-    //     const subClassData = this.Data[id];
-    //     if (id >= this.Data.length || id < 0, subClassData == null ) {
-    //         return undefined;
-    //     }
-
-    //     const file = this.deserialize(subClassData, id) as SubClass;
-    //     return file;
-    // }
-
     static findById<
-        SubClassData, SubClass extends BaseModel<SubClass, SubClassData>
+        SubClassData, SubClass extends BaseModel<SubClassData>
         >(id: number): SubClass | undefined {
         const subClassData = this.Data[id];
         if (id >= this.Data.length || id < 0, subClassData == null ) {
@@ -111,24 +67,24 @@ export class BaseModel<SubClass, SubClassData> {
 
     // UPDATE
     update(nextSubClassData: SubClassData) {
-        if (BaseModel.validate()) {
+        if (this.constructor.validate(nextSubClassData, this.id)) {
             return;
         }
         // この関数内でも抽象化による・・
         // 不完全な型のnextSubClassDataでも変更したい・・・
 
         // update data
-        BaseModel.Data[this.id] = nextSubClassData;
-        BaseModel.save();
+        this.constructor.Data[this.id] = nextSubClassData;
+        this.constructor.save();
 
         // update instance
-        Object.assign(this, BaseModel.deserialize(nextSubClassData, this.id));
+        Object.assign(this, this.constructor.deserialize(nextSubClassData, this.id));
     }
 
     // DESTROY
     destroy() {
-        BaseModel.Data[this.id] = null;
-        BaseModel.save();
+        this.constructor.Data[this.id] = null;
+        this.constructor.save();
         // こうしたいけど、できない
         // Object.assign(this, null);
         // 代わりに・・

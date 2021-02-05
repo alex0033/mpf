@@ -3,7 +3,6 @@ import { beforeEach, afterEach, describe, it } from 'mocha';
 import { File, FileData } from '../../../models/file';
 import { destroyedId } from '../../../consts/number';
 import { Progect, ProgectData } from '../../../models/project';
-import { BaseModel } from '../../../models/base_model';
 
 // requireでいい？？importで統一？？
 const mockfs = require('mock-fs');
@@ -94,7 +93,8 @@ describe('FileData Test Suite', () => {
     });
 
     it('findByPath', () => {
-        const existFile = File.deserialize(existFileData, existFileId);
+        // 型エラーが・・
+        const existFile: File = File.deserialize(existFileData, existFileId);
 
         const file = File.findByPath(existFile.relativePath);
         assert.deepStrictEqual(file, existFile);
