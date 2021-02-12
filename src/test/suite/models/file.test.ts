@@ -87,7 +87,7 @@ describe('FileData Test Suite', () => {
 
     it('findByPath', () => {
         // 型エラーが・・
-        const existFile: File = File.deserialize(existFileData, existFileId);
+        const existFile = File.deserialize(existFileData, existFileId);
 
         const file = File.findByPath(existFile.relativePath);
         assert.deepStrictEqual(file, existFile);

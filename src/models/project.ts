@@ -22,6 +22,19 @@ export class Progect extends BaseModel<ProgectData> {
         }
         return true;
     }
+
+    static deserialize<ProgectData>(progectData: ProgectData, id: number): Progect {
+        return super.deserialize(progectData, id) as Progect;
+    }
+
+    static create<ProgectData>(progectData: ProgectData): Progect | undefined {
+        return super.create(progectData) as Progect | undefined
+    }
+
+    static findById(id: number): Progect | undefined {
+        return super.findById(id) as Progect | undefined;
+    }
+
     // 抽象化の余地あり
     static findByPath(path: string): Progect | undefined {
         const id = Progect.Data.findIndex(d => d?.path == path);

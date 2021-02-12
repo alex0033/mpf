@@ -97,7 +97,7 @@ describe('Progect Test Suite', () => {
         progect.update(nextProgectData);
         assert.deepStrictEqual(progect, nextProgect);
 
-        const progectForConfirm = Progect.findById(existProgectId);
+        const progectForConfirm = Progect.findById(existProgectId); 
         assert.deepStrictEqual(progectForConfirm, nextProgect);
     });
 

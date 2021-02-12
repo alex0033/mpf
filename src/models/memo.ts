@@ -15,6 +15,18 @@ export class Memo extends BaseModel<MemoData> {
         this.fileId = memoData.fileId;
         this.message = memoData.message;
     }
+    
+    static deserialize<MemoData>(memoData: MemoData, id: number): Memo {
+        return super.deserialize(memoData, id) as Memo;
+    }
+
+    static create<MemoData>(memoData: MemoData): Memo | undefined {
+        return super.create(memoData) as Memo | undefined
+    }
+
+    static findById(id: number): Memo | undefined {
+        return super.findById(id) as Memo | undefined;
+    }   
 }
 
 export interface MemoData {

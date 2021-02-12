@@ -5,14 +5,20 @@ import * as fs from 'fs';
 import { destroyedId } from '../consts/number';
 
 // 自己参照があるため、abstractではない
-export class BaseModel<SubClassData, SubClass extends typeof BaseModel> {
+export class BaseModel<SubClassData> {
+    ['constructor']: typeof BaseModel;
     // should override
     protected static dataPath: string;
     protected static Data: any[];
 
     protected id: number;
 
-    constructor(subClassData: SubClassData, id: number) {
+    // constructor(subClassData: SubClassData, id: number) {
+    //     this.id = id;
+    //     // プロパティ名が一致したものは代入する
+    // }
+
+    constructor(subClassData: any, id: number) {
         this.id = id;
         // プロパティ名が一致したものは代入する
     }
@@ -26,40 +32,41 @@ export class BaseModel<SubClassData, SubClass extends typeof BaseModel> {
         this.Data = this.dataPath && JSON.parse(fs.readFileSync(this.dataPath, 'utf8'));
     }
 
-    // should overrride
+    // should override
     // 関数を引数にする？？
     protected static validate(any: any, id?: number): boolean {
         return false;
     }
 
-    static deserialize<SubClassData, SubClass>(
-        subClassData: SubClassData, id: number): SubClass {
+    // should override 
+    static deserialize<SubClassData>(subClassData: SubClassData, id: number): any {
         // 問題あり？？
-        const subClass = new this(subClassData, id) as unknown as SubClass;
+        const subClass = new this(subClassData, id);
         return subClass;
     }
 
     // CREATE
-    static create<SubClassData, SubClass extends typeof BaseModel
-    >(subClassData: SubClassData): SubClass | undefined {
+    // should override 
+    static create<SubClassData>(subClassData: SubClassData): any {
         if (this.validate(subClassData)) {
             return undefined;
         }
         this.Data.push(subClassData);
         this.save();
-        const subClass = this.deserialize(subClassData, this.Data.length - 1) as SubClass;
+        const subClass = this.deserialize(subClassData, this.Data.length - 1);
         return subClass;
     }
 
     // READ
-    static findById<SubClass extends typeof BaseModel
-        >(id: number): SubClass | undefined {
+    // should override 
+    // 返り値はサブクラスで指定
+    static findById(id: number): any {
         const subClassData = this.Data[id];
         if (id >= this.Data.length || id < 0, subClassData == null ) {
             return undefined;
         }
 
-        const subClass = this.deserialize(subClassData, id) as SubClass;
+        const subClass = this.deserialize(subClassData, id);
         return subClass;
     }
 
@@ -71,24 +78,24 @@ export class BaseModel<SubClassData, SubClass extends typeof BaseModel> {
 
     // UPDATE
     update(nextSubClassData: SubClassData) {
-        if ((this.constructor as SubClass).validate(nextSubClassData, this.id)) {
+        if (this.constructor.validate(nextSubClassData, this.id)) {
             return;
         }
         // この関数内でも抽象化による・・
         // 不完全な型のnextSubClassDataでも変更したい・・・
 
         // update data
-        (this.constructor as SubClass).Data[this.id] = nextSubClassData;
-        (this.constructor as SubClass).save();
+        this.constructor.Data[this.id] = nextSubClassData;
+        this.constructor.save();
 
         // update instance
-        Object.assign(this, (this.constructor as SubClass).deserialize(nextSubClassData, this.id));
+        Object.assign(this, this.constructor.deserialize(nextSubClassData, this.id));
     }
 
     // DESTROY
     destroy() {
-        (this.constructor as SubClass).Data[this.id] = null;
-        (this.constructor as SubClass).save();
+        this.constructor.Data[this.id] = null;
+        this.constructor.save();
         // こうしたいけど、できない
         // Object.assign(this, null);
         // 代わりに・・

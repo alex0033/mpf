@@ -20,7 +20,7 @@ export class File extends BaseModel<FileData> {
     }
 
     private joinPath(): string {
-        const progect: Progect | undefined = Progect.findById(this.progectId);
+        const progect = Progect.findById(this.progectId) as Progect | undefined;
         if (progect) {
             return path.join(progect.path, this.relativePath);
         }
@@ -36,9 +36,21 @@ export class File extends BaseModel<FileData> {
         return true;
     }
 
+    static deserialize<FileData>(fileData: FileData, id: number): File {
+        return super.deserialize(fileData, id) as File;
+    }
+
+    static create<FileData>(fileData: FileData): File | undefined {
+        return super.create(fileData) as File | undefined
+    }
+
+    static findById(id: number): File | undefined {
+        return super.findById(id) as File | undefined;
+    }
+
     static findByPath(path: string): File | undefined { 
         const id = File.Data.findIndex(d => d?.path == path);
-        return File.findById(id);
+        return File.findById(id) as File | undefined;
     }
 }
 

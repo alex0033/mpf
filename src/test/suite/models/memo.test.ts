@@ -91,7 +91,7 @@ describe('MemoData Test Suite', () => {
     });
 
     // UPDATE
-    it('can update path to newPath', () => {
+    it('can update message', () => {
         const memo = Memo.findById(existMemoId);
         if (memo == undefined) {
             assert.ok(false, "Unexpected error. Cannot save existMemoData with mock");
