@@ -1,8 +1,13 @@
 import * as vscode from "vscode";
 import * as path from "path";
+import { Memo, MemoData } from "../models/memo";
+import { Progect } from "../models/project";
+import { File } from "../models/file";
 
 export default class ViewLoader {
     readonly _panel: vscode.WebviewPanel | undefined;
+    private progectPath: string | undefined;
+    private filePath: string | undefined;
     private readonly _extensionPath: string;
 
     // constructor(extensionPath: string) {
@@ -64,5 +69,19 @@ export default class ViewLoader {
             </div>
         </body>
         </html>`;
+    }
+
+    private progectMemos(): Memo[] {
+        if (this.progectPath) {
+            return Memo.selectByProgectPath(this.progectPath);
+        }
+        return [];
+    }
+
+    private fileMemos(): Memo[] {
+        if (this.filePath) {
+            return Memo.selectByProgectPath(this.filePath);
+        }
+        return [];
     }
 }
