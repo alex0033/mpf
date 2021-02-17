@@ -32,6 +32,10 @@ export class BaseModel<SubClassData> {
         this.Data = this.dataPath && JSON.parse(fs.readFileSync(this.dataPath, 'utf8'));
     }
 
+    static size(): number {
+        return this.Data.length;
+    }
+
     // should override
     // 関数を引数にする？？
     protected static validate(any: any, id?: number): boolean {
@@ -40,7 +44,6 @@ export class BaseModel<SubClassData> {
 
     // should override 
     static deserialize<SubClassData>(subClassData: SubClassData, id: number): any {
-        // 問題あり？？
         const subClass = new this(subClassData, id);
         return subClass;
     }

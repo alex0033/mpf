@@ -3,7 +3,7 @@ import { beforeEach, afterEach, describe, it } from 'mocha';
 import { File, FileData } from '../../../models/file';
 import { destroyedId } from '../../../consts/number';
 import { Progect } from '../../../models/project';
-import { existProgectId } from './test_data/progect';
+import { anotherExistProgectId, existProgectData, existProgectId } from './test_data/progect';
 import { existFileId, existFileData, anotherExistFileId, anotherExistFileData, fileMock } from './test_data/file';
 
 // requireでいい？？importで統一？？
@@ -27,19 +27,34 @@ describe('FileData Test Suite', () => {
             path: path,
             progectId: existProgectId
         }
-        const expectedFile = File.deserialize(fileData, anotherExistFileId + 1);
+        const expectedFile = File.deserialize(fileData, File.size());
         const file = File.create(fileData);
-        
+
         assert.deepStrictEqual(file, expectedFile);
 
-        const fileDataForConfirm = File.findByPath(path);
+        const fileDataForConfirm = File.findByPathAndProgectId(path, existProgectId);
         assert.deepStrictEqual(fileDataForConfirm, expectedFile);
     });
 
     // unique path???
-    it('cannot cretate existFile', () => {
-        const existFile = File.create(existFileData);
-        assert.strictEqual(existFile, undefined);
+    it('can create existPath(unique: progectId, duplicate: filePath)', ()=> {
+        const id = File.size();
+        const fileData = {
+            path: existProgectData.path,
+            progectId: anotherExistProgectId
+        }
+        const file = File.create(fileData);
+        const expectedFile = File.deserialize(fileData, id);
+
+        assert.deepStrictEqual(file, expectedFile);
+
+        const fileDataForConfirm = File.findById(id);
+        assert.deepStrictEqual(fileDataForConfirm, expectedFile);
+    });
+
+    it('cannot cretate existFile(duplicate: filePath and progectId)', () => {
+        const file = File.create(existFileData);
+        assert.strictEqual(file, undefined);
     });
 
     // READ

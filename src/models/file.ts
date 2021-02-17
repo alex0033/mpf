@@ -29,7 +29,9 @@ export class File extends BaseModel<FileData> {
     }
 
     protected static validate(fileData: FileData, id?: number): boolean {
-        const index = this.Data.findIndex(d => d?.path == fileData.path);
+        // unique filePath and progectId
+        // = unique absolutePath
+        const index = File.Data.findIndex(d => d?.path == fileData.path && d?.progectId == fileData.progectId);
         if (index == -1 || index == id) {
             return false;
         }
@@ -37,20 +39,25 @@ export class File extends BaseModel<FileData> {
     }
 
     static deserialize<FileData>(fileData: FileData, id: number): File {
-        return super.deserialize(fileData, id) as File;
+        return super.deserialize(fileData, id);
     }
 
     static create<FileData>(fileData: FileData): File | undefined {
-        return super.create(fileData) as File | undefined
+        return super.create(fileData);
     }
 
     static findById(id: number): File | undefined {
-        return super.findById(id) as File | undefined;
+        return super.findById(id);
     }
 
     static findByPath(path: string): File | undefined { 
         const id = File.Data.findIndex(d => d?.path == path);
-        return File.findById(id) as File | undefined;
+        return File.findById(id);
+    }
+
+    static findByPathAndProgectId(path: string, progectId: number) {
+        const id = File.Data.findIndex(d => d?.path == path && d?.progectId == progectId);
+        return File.findById(id);
     }
 }
 

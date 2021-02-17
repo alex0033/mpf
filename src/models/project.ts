@@ -24,15 +24,15 @@ export class Progect extends BaseModel<ProgectData> {
     }
 
     static deserialize<ProgectData>(progectData: ProgectData, id: number): Progect {
-        return super.deserialize(progectData, id) as Progect;
+        return super.deserialize(progectData, id);
     }
 
     static create<ProgectData>(progectData: ProgectData): Progect | undefined {
-        return super.create(progectData) as Progect | undefined
+        return super.create(progectData);
     }
 
     static findById(id: number): Progect | undefined {
-        return super.findById(id) as Progect | undefined;
+        return super.findById(id);
     }
 
     // 抽象化の余地あり

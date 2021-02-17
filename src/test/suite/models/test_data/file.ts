@@ -1,9 +1,10 @@
 import { FileData } from "../../../../models/file";
-import { existProgectId, testProgectDataString } from "./progect";
+import { existProgectId, anotherExistProgectId, testProgectDataString } from "./progect";
 
+const existFilePath = "existText.txt";
 export const existFileId = 1;
 export const existFileData: FileData = {
-    path: "existText.txt",
+    path: existFilePath,
     progectId: existProgectId
 }
 

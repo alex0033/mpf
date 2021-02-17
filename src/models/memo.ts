@@ -19,15 +19,15 @@ export class Memo extends BaseModel<MemoData> {
     }
     
     static deserialize<MemoData>(memoData: MemoData, id: number): Memo {
-        return super.deserialize(memoData, id) as Memo;
+        return super.deserialize(memoData, id);
     }
 
     static create<MemoData>(memoData: MemoData): Memo | undefined {
-        return super.create(memoData) as Memo | undefined
+        return super.create(memoData);
     }
 
     static findById(id: number): Memo | undefined {
-        return super.findById(id) as Memo | undefined;
+        return super.findById(id);
     }
 
     static selectByProgectPath(progectPath: string): Memo[] {
