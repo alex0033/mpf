@@ -6,7 +6,7 @@ import { Progect } from './project';
 
 export class Memo extends BaseModel<MemoData> {
     protected static dataPath = client.memoDataPath;
-    protected static Data: [MemoData | null] = Memo.dataPath && JSON.parse(fs.readFileSync(Memo.dataPath, 'utf8'));
+    protected static Data: (MemoData | null)[] = Memo.dataPath && JSON.parse(fs.readFileSync(Memo.dataPath, 'utf8'));
     readonly progectId: number;
     readonly fileId: number;
     readonly message: string;
@@ -30,25 +30,25 @@ export class Memo extends BaseModel<MemoData> {
         return super.findById(id);
     }
 
-    static selectByProgectPath(progectPath: string): Memo[] {
+    static selectByPath(progectPath: string, filePath?: string): Memo[] {
         const progect = Memo.findProgectByPath(progectPath);
         if (progect == undefined) {
             return [];
         }
-        const memoDataIds = Memo.selectMemoDataIdsByProgectId(progect.getId());
-        let memos = memoDataIds.map(id => Memo.findById(id) as Memo);
-        return memos;
-    }
-
-    // filePath is not unique
-    // should unique with filePath and progectId
-    static selectByFilePath(filePath: string): Memo[] {
-        const file = Memo.findFileByPath(filePath);
+        if (progect && filePath == undefined) {
+            const memoDataIds = Memo.selectMemoDataIdsById(progect.getId());
+            const memos = memoDataIds.map(id => Memo.findById(id) as Memo);
+            return memos;
+        }
+        // この書き方は分かりにくいかな？？
+        const file = (filePath && Memo.findFileByPath(filePath, progect.getId())) as File | undefined;
+        // 下記コードがないと、該当しないファイルパスのとき、filePathが参照されない
         if (file == undefined) {
             return [];
         }
-        const memoDataIds = Memo.selectMemoDataIdsByFileId(file.getId());
-        let memos = memoDataIds.map(id => Memo.findById(id) as Memo);
+
+        const memoDataIds = Memo.selectMemoDataIdsById(progect.getId(), file.getId());
+        const memos = memoDataIds.map(id => Memo.findById(id) as Memo);
         return memos;
     }
 
@@ -56,26 +56,18 @@ export class Memo extends BaseModel<MemoData> {
         return Progect.findByPath(progectPath)
     }
 
-    private static selectMemoDataIdsByProgectId(progectId: number): number[] {
-        let memoDataIds = [];
-        const memoSize = Memo.Data.length;
-        for (let id = 0; id < memoSize; id ++) {
-            if (Memo.Data[id]?.progectId == progectId) {
-                memoDataIds.push(id);
-            }
-        }
-        return memoDataIds;
+    private static findFileByPath(filePath: string, progectId: number): File | undefined {
+        return File.findByPathAndProgectId(filePath, progectId);
     }
 
-    private static findFileByPath(filePath: string): File | undefined {
-        return File.findByPath(filePath);
-    }
-
-    private static selectMemoDataIdsByFileId(fileId: number): number[] {
+    private static selectMemoDataIdsById(progectId: number, fileId?: number): number[] {
         let memoDataIds = [];
+        // 以下まとめて処理できると良き
+        // データへの同時アクセス問題へ・・
         const memoSize = Memo.Data.length;
         for (let id = 0; id < memoSize; id ++) {
-            if (Memo.Data[id]?.fileId == fileId) {
+            const data = Memo.Data[id];
+            if (data?.progectId == progectId && (data?.fileId == fileId || fileId == undefined)) {
                 memoDataIds.push(id);
             }
         }

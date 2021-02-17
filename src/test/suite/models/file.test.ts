@@ -4,7 +4,7 @@ import { File, FileData } from '../../../models/file';
 import { destroyedId } from '../../../consts/number';
 import { Progect } from '../../../models/project';
 import { anotherExistProgectId, existProgectData, existProgectId } from './test_data/progect';
-import { existFileId, existFileData, anotherExistFileId, anotherExistFileData, fileMock } from './test_data/file';
+import { existFileId, existFileData, existFile2Id, existFile2Data, fileMock } from './test_data/file';
 
 // requireでいい？？importで統一？？
 const mockfs = require('mock-fs');
@@ -104,21 +104,21 @@ describe('FileData Test Suite', () => {
     });
 
     it('cannot update existFilePath to anotherExistFilePath', () => {
-        const file = File.findById(existFileId);
+        const file = File.findById(existFile2Id);
         if (file == undefined) {
             assert.ok(false, "Unexpected error. Cannot save existFileData with mock");
         }
         const nextFileData = {
-            path: anotherExistFileData.path,
-            progectId: existProgectId
-        }        
-        const existFile = File.deserialize(existFileData, existFileId);
+            path: existFileData.path,
+            progectId: existFileData.progectId
+        }
+        const expectedFile = File.deserialize(existFile2Data, existFile2Id);
 
         file.update(nextFileData);
-        assert.deepStrictEqual(file, existFile);
+        assert.deepStrictEqual(file, expectedFile);
 
-        const fileForConfirm = File.findById(existFileId);
-        assert.deepStrictEqual(fileForConfirm, existFile);
+        const fileForConfirm = File.findById(existFile2Id);
+        assert.deepStrictEqual(fileForConfirm, expectedFile);
     });
 
     // 後ほど、pogectIdを変えるパターンもありか？？

@@ -69,17 +69,17 @@ export default class ViewLoader {
         </html>`;
     }
 
-    private progectMemos(): Memo[] {
-        if (this.progectPath) {
-            return Memo.selectByProgectPath(this.progectPath);
-        }
-        return [];
-    }
+    // private progectMemos(): Memo[] {
+    //     if (this.progectPath) {
+    //         return Memo.selectByProgectPath(this.progectPath);
+    //     }
+    //     return [];
+    // }
 
-    private fileMemos(): Memo[] {
-        if (this.filePath) {
-            return Memo.selectByProgectPath(this.filePath);
-        }
-        return [];
-    }
+    // private fileMemos(): Memo[] {
+    //     if (this.filePath) {
+    //         return Memo.selectByProgectPath(this.filePath);
+    //     }
+    //     return [];
+    // }
 }

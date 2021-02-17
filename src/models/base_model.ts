@@ -13,11 +13,6 @@ export class BaseModel<SubClassData> {
 
     protected id: number;
 
-    // constructor(subClassData: SubClassData, id: number) {
-    //     this.id = id;
-    //     // プロパティ名が一致したものは代入する
-    // }
-
     constructor(subClassData: any, id: number) {
         this.id = id;
         // プロパティ名が一致したものは代入する
@@ -56,7 +51,7 @@ export class BaseModel<SubClassData> {
         }
         this.Data.push(subClassData);
         this.save();
-        const subClass = this.deserialize(subClassData, this.Data.length - 1);
+        const subClass = this.deserialize(subClassData, this.size() - 1);
         return subClass;
     }
 

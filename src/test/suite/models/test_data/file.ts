@@ -11,10 +11,16 @@ export const existFileData: FileData = {
 export const anotherExistFileId = 2;
 export const anotherExistFileData: FileData = {
     path: "anoterExistText.txt",
+    progectId: anotherExistProgectId
+}
+
+export const existFile2Id = 3;
+export const existFile2Data: FileData = {
+    path: "existFile2.txt",
     progectId: existProgectId
 }
 
-const testFileData = [null, existFileData, anotherExistFileData];
+const testFileData = [null, existFileData, anotherExistFileData, existFile2Data];
 export const testFileDataString = JSON.stringify(testFileData, null, "\t");
 
 export const fileMock = {

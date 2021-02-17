@@ -7,7 +7,7 @@ import { Progect } from './project';
 
 export class File extends BaseModel<FileData> {
     protected static dataPath = client.fileDataPath;
-    protected static Data: [FileData | null] = File.dataPath && JSON.parse(fs.readFileSync(File.dataPath, 'utf8'));
+    protected static Data: (FileData | null)[] = File.dataPath && JSON.parse(fs.readFileSync(File.dataPath, 'utf8'));
     readonly relativePath: string;
     readonly absolutePath: string;
     readonly progectId: number;

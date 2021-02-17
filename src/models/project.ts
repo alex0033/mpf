@@ -4,7 +4,7 @@ import { BaseModel } from './base_model';
 
 export class Progect extends BaseModel<ProgectData> {
     protected static dataPath = server.progectDataPath;
-    protected static Data: [ProgectData | null] = JSON.parse(fs.readFileSync(Progect.dataPath, 'utf8'));
+    protected static Data: (ProgectData | null)[] = JSON.parse(fs.readFileSync(Progect.dataPath, 'utf8'));
     readonly title: string;
     readonly path: string;
 
