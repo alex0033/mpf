@@ -2,32 +2,14 @@ import * as assert from 'assert';
 import { beforeEach, afterEach, describe, it } from 'mocha';
 import { Progect, ProgectData } from '../../../models/project';
 import { destroyedId } from '../../../consts/number';
+import { existProgectId, anotherExistProgectId, existProgectData, anotherExistProgectData, progectMock } from './test_data/progect';
 
 // requireでいい？？importで統一？？
 const mockfs = require('mock-fs');
 
-const existProgectId = 1;
-const existProgectData: ProgectData = {
-    title: "exist progect",
-    path: "/root/exist"
-}
-
-const anotherExistProgectId = 2;
-const anotherExistProgectData: ProgectData = {
-    title: "another exist progect",
-    path: "/root/another_exist"
-}
-
-const testData = [null, existProgectData, anotherExistProgectData];
-const testDataString = JSON.stringify(testData, null, "\t");
-
 describe('Progect Test Suite', () => {
     beforeEach(() => {
-        mockfs({
-            mpf_server_data: {
-                "progect.json": testDataString
-            }
-        });
+        mockfs(progectMock);
         // これによりデータがProgectのクラス変数（Data）に反映される！！
         Progect.loadData();
     });
@@ -60,7 +42,7 @@ describe('Progect Test Suite', () => {
 
     // READ
     it('findById', () => {
-        const existProgect: Progect = Progect.deserialize(existProgectData, existProgectId);
+        const existProgect = Progect.deserialize(existProgectData, existProgectId);
         const progect = Progect.findById(existProgectId);
         assert.deepStrictEqual(progect, existProgect);
     });
@@ -72,7 +54,7 @@ describe('Progect Test Suite', () => {
     });
 
     it('findByPath', () => {
-        const existProgect: Progect = Progect.deserialize(existProgectData, existProgectId);
+        const existProgect = Progect.deserialize(existProgectData, existProgectId);
         const progect = Progect.findByPath(existProgect.path);
         assert.deepStrictEqual(progect, existProgect);
     });
@@ -85,7 +67,7 @@ describe('Progect Test Suite', () => {
 
     // UPDATE
     it('can update title', () => {
-        const progect: Progect | undefined = Progect.findById(existProgectId);
+        const progect = Progect.findById(existProgectId);
         if (progect == undefined) {
             assert.ok(false, "Unexpected error. Cannot save existProgectData with mock");
         }
@@ -102,7 +84,7 @@ describe('Progect Test Suite', () => {
     });
 
     it('can update path to newPath', () => {
-        const progect: Progect | undefined = Progect.findById(existProgectId);
+        const progect = Progect.findById(existProgectId);
         if (progect == undefined) {
             assert.ok(false, "Unexpected error. Cannot save existProgectData with mock");
         }
@@ -119,8 +101,8 @@ describe('Progect Test Suite', () => {
     });
 
     it('cannot update existProgectPath to anotherExistProgectPath', () => {
-        const existProgect: Progect = Progect.deserialize(existProgectData, existProgectId);
-        const progect: Progect | undefined = Progect.findById(existProgectId);
+        const existProgect = Progect.deserialize(existProgectData, existProgectId);
+        const progect = Progect.findById(existProgectId);
         if (progect == undefined) {
             assert.ok(false, "Unexpected error. Cannot save existProgectData with mock");
         }

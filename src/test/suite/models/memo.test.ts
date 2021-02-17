@@ -1,56 +1,18 @@
 import * as assert from 'assert';
 import { beforeEach, afterEach, describe, it } from 'mocha';
-import { File, FileData } from '../../../models/file';
+import { File } from '../../../models/file';
 import { destroyedId } from '../../../consts/number';
-import { Progect, ProgectData } from '../../../models/project';
+import { Progect } from '../../../models/project';
 import { Memo, MemoData } from '../../../models/memo';
+import { existMemoId, existMemoData, anotherExistMemoId, memoMock } from './test_data/memo';
+import { existFileId } from './test_data/file';
+import { existProgectId } from './test_data/progect';
 
-// requireでいい？？importで統一？？
 const mockfs = require('mock-fs');
-
-// 下記の変数たちの代入をmock作成後に行いたいで御座んす
-const existProgectId = 1;
-const existProgectData: ProgectData = {
-    title: "exist progect",
-    path: "/root/exist"
-}
-const testProgectData = [null, existProgectData]
-const testProgectDataString = JSON.stringify(testProgectData, null, "\t");
-
-const existFileId = 1;
-const existFileData: FileData = {
-    path: "existText.txt",
-    progectId: existProgectId
-}
-const testFileData = [null, existFileData];
-const testFileDataString = JSON.stringify(testFileData, null, "\t");
-
-const existMemoId = 1;
-const existMemoData: MemoData = {
-    progectId: existProgectId,
-    fileId: existFileId,
-    message: "first memo"
-}
-const anotherExistMemoId = 2;
-const anotherExistMemoData: MemoData = {
-    progectId: existProgectId,
-    fileId: -1,
-    message: "second memo"
-}
-const testMemoData = [null, existMemoData, anotherExistMemoData];
-const testMemoDataString = JSON.stringify(testMemoData, null, "\t");
 
 describe('MemoData Test Suite', () => {
     beforeEach(() => {
-        mockfs({
-            mpf_server_data: {
-                "progect.json": testProgectDataString
-            },
-            mpf_client_data: {
-                "file.json": testFileDataString,
-                "memo.json": testMemoDataString
-            }
-        });
+        mockfs(memoMock);
         Progect.loadData();
         File.loadData();
         Memo.loadData();

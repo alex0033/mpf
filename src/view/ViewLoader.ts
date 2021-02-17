@@ -1,8 +1,6 @@
 import * as vscode from "vscode";
 import * as path from "path";
-import { Memo, MemoData } from "../models/memo";
-import { Progect } from "../models/project";
-import { File } from "../models/file";
+import { Memo } from "../models/memo";
 
 export default class ViewLoader {
     readonly _panel: vscode.WebviewPanel | undefined;

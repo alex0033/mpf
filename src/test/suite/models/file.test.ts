@@ -2,45 +2,16 @@ import * as assert from 'assert';
 import { beforeEach, afterEach, describe, it } from 'mocha';
 import { File, FileData } from '../../../models/file';
 import { destroyedId } from '../../../consts/number';
-import { Progect, ProgectData } from '../../../models/project';
+import { Progect } from '../../../models/project';
+import { existProgectId } from './test_data/progect';
+import { existFileId, existFileData, anotherExistFileId, anotherExistFileData, fileMock } from './test_data/file';
 
 // requireでいい？？importで統一？？
 const mockfs = require('mock-fs');
 
-// 下記の変数たちの代入をmock作成後に行いたいで御座んす
-const existProgectId = 1;
-const existProgectData: ProgectData = {
-    title: "exist progect",
-    path: "/root/exist"
-}
-const testProgectData = [null, existProgectData]
-const testProgectDataString = JSON.stringify(testProgectData, null, "\t");
-
-const existFileId = 1;
-const existFileData: FileData = {
-    path: "existText.txt",
-    progectId: existProgectId
-}
-
-const anotherExistFileId = 2;
-const anotherExistFileData: FileData = {
-    path: "anoterExistText.txt",
-    progectId: existProgectId
-}
-
-const testFileData = [null, existFileData, anotherExistFileData];
-const testFileDataString = JSON.stringify(testFileData, null, "\t");
-
 describe('FileData Test Suite', () => {
     beforeEach(() => {
-        mockfs({
-            mpf_server_data: {
-                "progect.json": testProgectDataString
-            },
-            mpf_client_data: {
-                "file.json": testFileDataString
-            }
-        });
+        mockfs(fileMock);
         Progect.loadData();
         File.loadData();
     });
