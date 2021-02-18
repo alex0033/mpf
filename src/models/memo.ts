@@ -31,40 +31,41 @@ export class Memo extends BaseModel<MemoData> {
     }
 
     static selectByPath(progectPath: string, filePath?: string): Memo[] {
-        const progect = Memo.findProgectByPath(progectPath);
-        if (progect == undefined) {
+        const progectId = Memo.findProgectIdByPath(progectPath);
+        if (progectId == undefined) {
             return [];
         }
-        if (progect && filePath == undefined) {
-            const memoDataIds = Memo.selectMemoDataIdsById(progect.getId());
-            const memos = memoDataIds.map(id => Memo.findById(id) as Memo);
-            return memos;
+        if (progectId && filePath == undefined) {
+            return Memo.selectMemosByIds(progectId);
         }
         // この書き方は分かりにくいかな？？
-        const file = (filePath && Memo.findFileByPath(filePath, progect.getId())) as File | undefined;
+        const fileId = (filePath && Memo.findFileIdByPath(filePath, progectId)) as number | undefined;
         // 下記コードがないと、該当しないファイルパスのとき、filePathが参照されない
-        if (file == undefined) {
+        if (fileId == undefined) {
             return [];
         }
+        return Memo.selectMemosByIds(progectId, fileId);
+    }
 
-        const memoDataIds = Memo.selectMemoDataIdsById(progect.getId(), file.getId());
+    private static findProgectIdByPath(progectPath: string): number | undefined {
+        return Progect.findByPath(progectPath)?.getId();
+    }
+
+    private static findFileIdByPath(filePath: string, progectId: number): number | undefined {
+        return File.findByPathAndProgectId(filePath, progectId)?.getId();
+    }
+
+    private static selectMemosByIds(progectId: number, fileId?: number) {
+        const memoDataIds = Memo.selectMemoDataIdsByIds(progectId, fileId);
         const memos = memoDataIds.map(id => Memo.findById(id) as Memo);
         return memos;
     }
 
-    private static findProgectByPath(progectPath: string): Progect | undefined {
-        return Progect.findByPath(progectPath)
-    }
-
-    private static findFileByPath(filePath: string, progectId: number): File | undefined {
-        return File.findByPathAndProgectId(filePath, progectId);
-    }
-
-    private static selectMemoDataIdsById(progectId: number, fileId?: number): number[] {
+    private static selectMemoDataIdsByIds(progectId: number, fileId?: number): number[] {
         let memoDataIds = [];
         // 以下まとめて処理できると良き
         // データへの同時アクセス問題へ・・
-        const memoSize = Memo.Data.length;
+        const memoSize = Memo.size();
         for (let id = 0; id < memoSize; id ++) {
             const data = Memo.Data[id];
             if (data?.progectId == progectId && (data?.fileId == fileId || fileId == undefined)) {
