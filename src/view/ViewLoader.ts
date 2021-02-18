@@ -1,6 +1,8 @@
 import * as vscode from "vscode";
 import * as path from "path";
 import { Memo } from "../models/memo";
+import { Progect, ProgectData } from "../models/project";
+import { FileData } from "../models/file";
 
 export default class ViewLoader {
     readonly _panel: vscode.WebviewPanel | undefined;
@@ -26,16 +28,52 @@ export default class ViewLoader {
             }
         );
         this._panel.webview.html = this.getWebviewContent();
-        this._panel.webview.postMessage({ messages: ["1", "2"] });
+        this.postMessage();
 
-        // this._panel.webview.onDidReceiveMessage(
-        //     message => {
-        //         vscode.window.showErrorMessage(message);
-        //         console.log("come onDidReceive////");
-        //     },
-        //     undefined,
-        //     context.subscriptions
-        //   );
+        this.listenMessage(context);
+    }
+
+    // vscode => now(viewLoader) => webView
+    updateState(progectPath?: string, filePath?: string) {
+        this.progectPath = progectPath;
+        this.filePath = filePath;
+        this.postMessage();
+    }
+
+    // webView => now(viewLoader) => progect model
+    createProgect(progectData: ProgectData) {
+        Progect.create(progectData);
+    }
+
+    // webView => now(viewLoader) => progect model
+    createFile(fileData: FileData) {
+        Progect.create(fileData);
+    }
+
+    private postMessage() {
+        let type = "notHasProgect";
+        if (this.filePath) {
+            type = "hasFile";
+        } else if (this.progectPath) {
+            type = "hasProgect";
+        }
+        this._panel && this._panel.webview.postMessage({
+            type: type,
+            progectMemos: this.progectMemos(),
+            fileMemos: this.fileMemos()
+        });
+    }
+
+    // webview => now(viewLoader)
+    private listenMessage(context: vscode.ExtensionContext) {
+        this._panel && this._panel.webview.onDidReceiveMessage(
+            message => {
+                vscode.window.showErrorMessage(message);
+                console.log("come onDidReceive////");
+            },
+            undefined,
+            context.subscriptions
+          );
     }
 
     private getWebviewContent(): string {
@@ -69,17 +107,17 @@ export default class ViewLoader {
         </html>`;
     }
 
-    // private progectMemos(): Memo[] {
-    //     if (this.progectPath) {
-    //         return Memo.selectByProgectPath(this.progectPath);
-    //     }
-    //     return [];
-    // }
+    private progectMemos(): Memo[] {
+        if (this.progectPath) {
+            return Memo.selectByPath(this.progectPath);
+        }
+        return [];
+    }
 
-    // private fileMemos(): Memo[] {
-    //     if (this.filePath) {
-    //         return Memo.selectByProgectPath(this.filePath);
-    //     }
-    //     return [];
-    // }
+    private fileMemos(): Memo[] {
+        if (this.progectPath && this.filePath) {
+            return Memo.selectByPath(this.progectPath, this.filePath);
+        }
+        return [];
+    }
 }

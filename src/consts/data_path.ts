@@ -12,7 +12,7 @@ export module server {
 export module client {
     const workspacePath = vscode.workspace.rootPath;
 
-    const dataDirectory = workspacePath && path.join(workspacePath, "../../mpf_client_data") || path.join(rootDirecrory, "mpf_client_data");
+    const dataDirectory = workspacePath && path.join(workspacePath, "mpf_client_data") || path.join(rootDirecrory, "mpf_client_data");
 
     export const fileDataPath = dataDirectory && path.join(dataDirectory, "file.json");
     export const memoDataPath = dataDirectory && path.join(dataDirectory, "memo.json");
