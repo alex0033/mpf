@@ -15,6 +15,7 @@ export default class Messages extends React.Component<{}, MessagesType> {
     render() {
         return (
             <div id="messages">
+                <p>message test</p>
                 {this.state.messages.map((message)=>{
                     return(
                         <Message

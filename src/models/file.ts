@@ -55,9 +55,18 @@ export class File extends BaseModel<FileData> {
         return File.findById(id);
     }
 
+    static findByPaths(progectPath: string, filePath: string): File | undefined { 
+        const id = File.Data.findIndex(d => d?.path == filePath && d?.progectId == File.findProgectIdByPath(progectPath));
+        return File.findById(id);
+    }
+
     static findByPathAndProgectId(path: string, progectId: number) {
         const id = File.Data.findIndex(d => d?.path == path && d?.progectId == progectId);
         return File.findById(id);
+    }
+
+    private static findProgectIdByPath(progectPath: string): number | undefined {
+        return Progect.findByPath(progectPath)?.getId();
     }
 }
 

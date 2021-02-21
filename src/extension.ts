@@ -20,8 +20,14 @@ export function activate(context: vscode.ExtensionContext) {
 		// Display a message box to the user
 		vscode.window.showInformationMessage('Hello World from memo_per_file!');
 
-		// viewLoaderという変数名やクラス設計が？？
-		const viewLoader = new ViewLoader(context);
+		// pathの性格な値チェック??
+		const progectPath = vscode.workspace.rootPath;
+		const filePath = vscode.workspace.workspaceFile?.toString();
+		if (progectPath) {
+			console.log("come for viewLoader");
+			
+			const viewLoader = new ViewLoader(context, progectPath, filePath);
+		}
 	});
 
 	context.subscriptions.push(disposable);

@@ -1,14 +1,10 @@
 import * as React from 'react';
 
 export default class Messages extends React.Component<PropsType, {}> {
-    constructor(props) {
-        super(props);
-    }
-
     render() {
         return (
             <div className="message">
-                <p>{this.props.message}</p>
+                <p style={{color: "red"}}>messages</p>
             </div>
         );
     }

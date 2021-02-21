@@ -2,20 +2,23 @@ import * as vscode from "vscode";
 import * as path from "path";
 import { Memo } from "../models/memo";
 import { Progect, ProgectData } from "../models/project";
-import { FileData } from "../models/file";
+import { File, FileData } from "../models/file";
+import { PathInfo } from "../consts/types";
 
 export default class ViewLoader {
     readonly _panel: vscode.WebviewPanel | undefined;
     private progectPath: string | undefined;
     private filePath: string | undefined;
+    private pathInfoType: PathInfo.types;
     private readonly _extensionPath: string;
 
-    // constructor(extensionPath: string) {
-    constructor(context: vscode.ExtensionContext) {
+    // ViewStateクラスを作るべきなのか？？？
+
+    constructor(context: vscode.ExtensionContext, progectPath: string, filePath?: string) {
         this._extensionPath = context.extensionPath;
 
         this._panel = vscode.window.createWebviewPanel(
-        "configView",
+            "configView",
             "Config View",
             vscode.ViewColumn.Beside,
             {
@@ -28,15 +31,49 @@ export default class ViewLoader {
             }
         );
         this._panel.webview.html = this.getWebviewContent();
+
+        // 下記で初期値代入
+        this.pathInfoType = PathInfo.yyy;
+
+        this.setState(progectPath, filePath);
+
         this.postMessage();
 
-        this.listenMessage(context);
+        // this.listenMessage(context);
+    }
+
+    // activeProgectPath, activeFilePath
+    private setState(progectPath: string, filePath?: string) {
+        this.progectPath = this.getProgectPath(progectPath);
+
+        if (this.progectPath == undefined) {
+            this.filePath = undefined;
+            this.pathInfoType = PathInfo.nnn;
+            return;
+        } else if (filePath == undefined) {
+            this.filePath = undefined;
+            this.pathInfoType = PathInfo.ynn;
+            return;
+        }
+
+        const activeFileRelativePath = path.relative(progectPath, filePath);
+        this.filePath = this.getFileAbsolutePath(progectPath, activeFileRelativePath);
+        if (this.filePath == undefined) {
+            this.pathInfoType = PathInfo.yyn;
+        }
+    }
+
+    private getProgectPath(progectPath: string): string | undefined {
+        return Progect.findByPath(progectPath)?.path;
+    }
+
+    private getFileAbsolutePath(progectPath: string, fileRelativePath: string): string | undefined {
+        return File.findByPaths(progectPath, fileRelativePath)?.absolutePath;
     }
 
     // vscode => now(viewLoader) => webView
-    updateState(progectPath?: string, filePath?: string) {
-        this.progectPath = progectPath;
-        this.filePath = filePath;
+    updateState(progectPath: string, filePath?: string) {
+        this.setState(progectPath, filePath);
         this.postMessage();
     }
 
@@ -47,21 +84,17 @@ export default class ViewLoader {
 
     // webView => now(viewLoader) => progect model
     createFile(fileData: FileData) {
-        Progect.create(fileData);
+        File.create(fileData);
     }
 
     private postMessage() {
-        let type = "notHasProgect";
-        if (this.filePath) {
-            type = "hasFile";
-        } else if (this.progectPath) {
-            type = "hasProgect";
+        if (this._panel) {
+            this._panel.webview.postMessage({
+                pathInfoType: this.pathInfoType
+                // progectMemos: this.progectMemos(),
+                // fileMemos: this.fileMemos()
+            });
         }
-        this._panel && this._panel.webview.postMessage({
-            type: type,
-            progectMemos: this.progectMemos(),
-            fileMemos: this.fileMemos()
-        });
     }
 
     // webview => now(viewLoader)
@@ -83,6 +116,7 @@ export default class ViewLoader {
         );
         let reactAppUri = reactAppPathOnDisk.with({ scheme: "vscode-resource" });
 
+        // 下記CSSのリンクは要変更ですな
         return `<!DOCTYPE html>
         <html lang="en">
         <head>

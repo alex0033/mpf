@@ -85,6 +85,18 @@ describe('FileData Test Suite', () => {
         assert.deepStrictEqual(file, undefined);
     });
 
+    it('findByPaths', () => {
+        const existFile = File.deserialize(existFileData, existFileId);
+
+        const file = File.findByPaths(existProgectData.path, existFile.relativePath);
+        assert.deepStrictEqual(file, existFile);
+    });
+
+    it('cannot findByPaths', () => {
+        const file = File.findByPaths(existProgectData.path, "not_exist.txt");
+        assert.deepStrictEqual(file, undefined);
+    });
+
     // UPDATE
     it('can update path to newPath', () => {
         const file = File.findById(existFileId);
