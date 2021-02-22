@@ -1,5 +1,11 @@
 import * as React from 'react';
 
+interface vscode {
+    postMessage(message: any): void;
+}
+// declare function acquireVsCodeApi(): vscode;
+declare const vscode: vscode;
+
 export default class CreateProgectField extends React.Component<{}, {title: string, nowText: string}> {
     constructor(props) {
         super(props);
@@ -13,6 +19,8 @@ export default class CreateProgectField extends React.Component<{}, {title: stri
         this.setState({
             title: this.state.nowText
         });
+        // const vscode = window.acquireVsCodeApi;
+        vscode.postMessage({message: "createProgect"});
     }
 
     handleOnChange(e: any) {

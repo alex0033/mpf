@@ -39,7 +39,7 @@ export default class ViewLoader {
 
         this.postMessage();
 
-        // this.listenMessage(context);
+        this.listenMessage(context);
     }
 
     // activeProgectPath, activeFilePath
@@ -101,12 +101,14 @@ export default class ViewLoader {
     private listenMessage(context: vscode.ExtensionContext) {
         this._panel && this._panel.webview.onDidReceiveMessage(
             message => {
-                vscode.window.showErrorMessage(message);
+                vscode.window.showErrorMessage(message.message);
                 console.log("come onDidReceive////");
+                vscode.window.showInformationMessage(message.message);
+                console.log(message);
             },
             undefined,
             context.subscriptions
-          );
+        );
     }
 
     private getWebviewContent(): string {
@@ -130,7 +132,7 @@ export default class ViewLoader {
                             script-src 'unsafe-eval' 'unsafe-inline' vscode-resource:;
                             style-src vscode-resource: 'unsafe-inline';">
             <script>
-                window.acquireVsCodeApi = acquireVsCodeApi;
+                const vscode = acquireVsCodeApi();
             </script>
         </head>
         <body>
