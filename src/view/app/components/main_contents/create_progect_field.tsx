@@ -1,9 +1,9 @@
 import * as React from 'react';
 
+// 下記は共有する？？
 interface vscode {
     postMessage(message: any): void;
 }
-// declare function acquireVsCodeApi(): vscode;
 declare const vscode: vscode;
 
 export default class CreateProgectField extends React.Component<{}, {title: string, nowText: string}> {
@@ -19,8 +19,10 @@ export default class CreateProgectField extends React.Component<{}, {title: stri
         this.setState({
             title: this.state.nowText
         });
-        // const vscode = window.acquireVsCodeApi;
-        vscode.postMessage({message: "createProgect"});
+        vscode.postMessage({
+            action: "createProgect",
+            title: this.state.title
+        });
     }
 
     handleOnChange(e: any) {

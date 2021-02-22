@@ -2,5 +2,9 @@
 	{
 		"title": "test_progect",
 		"path": "/home/alex/desktop/test_progect"
+	},
+	{
+		"title": "",
+		"path": "/home/alex/path/mydb_dir"
 	}
 ]

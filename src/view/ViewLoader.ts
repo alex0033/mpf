@@ -7,15 +7,20 @@ import { PathInfo } from "../consts/types";
 
 export default class ViewLoader {
     readonly _panel: vscode.WebviewPanel | undefined;
-    private progectPath: string | undefined;
-    private filePath: string | undefined;
+    private savedProgectPath: string | undefined;
+    private savedFilePath: string | undefined;
+    private activeProgectPath: string;
+    private activeFilePath: string | undefined;
     private pathInfoType: PathInfo.types;
     private readonly _extensionPath: string;
 
     // ViewStateクラスを作るべきなのか？？？
 
-    constructor(context: vscode.ExtensionContext, progectPath: string, filePath?: string) {
+    constructor(context: vscode.ExtensionContext, activeProgectPath: string, activeFilePath?: string) {
         this._extensionPath = context.extensionPath;
+
+        this.activeProgectPath = activeProgectPath;
+        this.activeFilePath = activeFilePath;
 
         this._panel = vscode.window.createWebviewPanel(
             "configView",
@@ -33,53 +38,66 @@ export default class ViewLoader {
         this._panel.webview.html = this.getWebviewContent();
 
         // 下記で初期値代入
-        this.pathInfoType = PathInfo.yyy;
+        this.pathInfoType = PathInfo.types.yyy;
 
-        this.setState(progectPath, filePath);
+        this.setState();
 
         this.postMessage();
 
         this.listenMessage(context);
     }
 
-    // activeProgectPath, activeFilePath
-    private setState(progectPath: string, filePath?: string) {
-        this.progectPath = this.getProgectPath(progectPath);
+    private setState() {
+        this.savedProgectPath = this.getProgectPath();
 
-        if (this.progectPath == undefined) {
-            this.filePath = undefined;
-            this.pathInfoType = PathInfo.nnn;
+        if (this.savedProgectPath == undefined) {
+            this.savedFilePath = undefined;
+            this.pathInfoType = PathInfo.types.nnn;
             return;
-        } else if (filePath == undefined) {
-            this.filePath = undefined;
-            this.pathInfoType = PathInfo.ynn;
+        } else if (this.activeFilePath == undefined) {
+            this.savedFilePath = undefined;
+            this.pathInfoType = PathInfo.types.ynn;
             return;
         }
 
-        const activeFileRelativePath = path.relative(progectPath, filePath);
-        this.filePath = this.getFileAbsolutePath(progectPath, activeFileRelativePath);
-        if (this.filePath == undefined) {
-            this.pathInfoType = PathInfo.yyn;
+        this.savedFilePath = this.getFileAbsolutePath();
+        if (this.savedFilePath == undefined) {
+            this.pathInfoType = PathInfo.types.yyn;
         }
     }
 
-    private getProgectPath(progectPath: string): string | undefined {
-        return Progect.findByPath(progectPath)?.path;
+    private getProgectPath(): string | undefined {
+        return this.activeProgectPath && Progect.findByPath(this.activeProgectPath)?.path;
     }
 
-    private getFileAbsolutePath(progectPath: string, fileRelativePath: string): string | undefined {
-        return File.findByPaths(progectPath, fileRelativePath)?.absolutePath;
+    private getFileAbsolutePath(): string | undefined {
+        if (this.activeFilePath == undefined) {
+            return undefined;
+        }
+        const fileRelativePath = path.relative(this.activeProgectPath, this.activeFilePath);
+        return File.findByPaths(this.activeProgectPath, fileRelativePath)?.absolutePath;
     }
 
     // vscode => now(viewLoader) => webView
-    updateState(progectPath: string, filePath?: string) {
-        this.setState(progectPath, filePath);
+    updateState(activeProgectPath: string, activeFilePath?: string) {
+        this.activeProgectPath = activeProgectPath;
+        this.activeFilePath = activeFilePath;
+        this.setState();
         this.postMessage();
     }
 
     // webView => now(viewLoader) => progect model
-    createProgect(progectData: ProgectData) {
-        Progect.create(progectData);
+    createProgect(title: string): Progect | undefined {
+        if (this.activeProgectPath == undefined) {
+            console.log("activeProgectPath is undefined");
+            
+            return undefined;
+        }
+        const progectData: ProgectData = {
+            title: title,
+            path: this.activeProgectPath
+        }
+        return Progect.create(progectData);
     }
 
     // webView => now(viewLoader) => progect model
@@ -101,10 +119,25 @@ export default class ViewLoader {
     private listenMessage(context: vscode.ExtensionContext) {
         this._panel && this._panel.webview.onDidReceiveMessage(
             message => {
-                vscode.window.showErrorMessage(message.message);
-                console.log("come onDidReceive////");
-                vscode.window.showInformationMessage(message.message);
-                console.log(message);
+                switch(message.action) {
+                    case "createProgect":
+                        const progect = this.createProgect(message.title);
+                        if (progect) {
+                            vscode.window.showInformationMessage("プロジェクト作成に成功しました。");
+                            if (this.savedProgectPath == undefined) {
+                                console.log("予期せぬエラー");
+                                break;
+                            }
+                            this.updateState(this.savedProgectPath, this.savedFilePath);
+                            break;
+                        }
+                        console.log(progect);
+                        
+                        vscode.window.showInformationMessage("プロジェクト作成に失敗しました。");
+                        break;
+                    default:
+                        break;
+                }
             },
             undefined,
             context.subscriptions
@@ -124,7 +157,6 @@ export default class ViewLoader {
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <link rel="stylesheet" href="/home/alex/desktop/vs_code_extentions/mpf/out/view/app/index.css">
             <title>Config View</title>
             <meta http-equiv="Content-Security-Policy"
                     content="default-src 'none';
@@ -144,15 +176,15 @@ export default class ViewLoader {
     }
 
     private progectMemos(): Memo[] {
-        if (this.progectPath) {
-            return Memo.selectByPath(this.progectPath);
+        if (this.savedProgectPath) {
+            return Memo.selectByPath(this.savedProgectPath);
         }
         return [];
     }
 
     private fileMemos(): Memo[] {
-        if (this.progectPath && this.filePath) {
-            return Memo.selectByPath(this.progectPath, this.filePath);
+        if (this.savedProgectPath && this.savedFilePath) {
+            return Memo.selectByPath(this.savedProgectPath, this.savedFilePath);
         }
         return [];
     }

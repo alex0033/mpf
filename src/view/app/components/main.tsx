@@ -2,16 +2,15 @@ import * as React from 'react';
 import Header from './header';
 import Footer from './footer';
 import Messages from './messages';
-import CreateProgectField from './main_contents/create_progect_field'
-import { PathInfo } from '../consts/types';
-import { View } from '../consts/types';
+import CreateProgectField from './main_contents/create_progect_field';
+import { View, PathInfo } from '../../../consts/types';
 
 export default class Main extends React.Component<{}, StateType> {
     constructor(props) {
         super(props);
 
         this.state = {
-            pathInfoType: PathInfo.yyy,
+            pathInfoType: PathInfo.types.yyy,
             viewType: View.types.ErrorField,
             // progectMemos: [],
             // fileMemos: []
@@ -33,13 +32,13 @@ export default class Main extends React.Component<{}, StateType> {
 
     private getViewType(pathInfoType: PathInfo.types): View.types {
         switch(pathInfoType) {
-            case PathInfo.nnn:
+            case PathInfo.types.nnn:
                 return View.types.CreateProgectField;
-            case PathInfo.ynn: 
+            case PathInfo.types.ynn: 
                 return View.types.CreateFileField;
-            case PathInfo.yyn:
+            case PathInfo.types.yyn:
                 return View.types.ProgectMemos;
-            case PathInfo.yyy:
+            case PathInfo.types.yyy:
                 return View.types.FileMemos;
             default:
                 return View.types.ErrorField;
