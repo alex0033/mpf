@@ -16,12 +16,14 @@ export default class CreateProgectField extends React.Component<{}, {title: stri
     }
 
     createProgect() {
+        // this.state.titleはこの関数内では反映されないことに注意
+        const title = this.state.nowText;
         this.setState({
-            title: this.state.nowText
+            title: title
         });
         vscode.postMessage({
             action: "createProgect",
-            title: this.state.title
+            title: title
         });
     }
 

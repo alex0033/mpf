@@ -109,7 +109,6 @@ export default class ViewLoader {
     private postMessage() {
         if (this._panel) {
             this._panel.webview.postMessage({
-                // pathInfoType: this.pathInfoType
                 pathInfoType: this.pathInfoType
                 // progectMemos: this.progectMemos(),
                 // fileMemos: this.fileMemos()
@@ -147,7 +146,6 @@ export default class ViewLoader {
         );
         let reactAppUri = reactAppPathOnDisk.with({ scheme: "vscode-resource" });
 
-        // 下記CSSのリンクは要変更ですな
         return `<!DOCTYPE html>
         <html lang="en">
         <head>
