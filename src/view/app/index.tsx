@@ -8,3 +8,8 @@ ReactDOM.render(
     <Main/>,
     document.getElementById('root')
 );
+
+// ReactDOM.render(
+//     <p>hhh</p>,
+//     document.getElementById('root')
+// );

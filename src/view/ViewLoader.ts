@@ -105,9 +105,11 @@ export default class ViewLoader {
         File.create(fileData);
     }
 
+    // 適切に送れなかったとき再度送信やエラー表示しよう！！（再帰的？？）
     private postMessage() {
         if (this._panel) {
             this._panel.webview.postMessage({
+                // pathInfoType: this.pathInfoType
                 pathInfoType: this.pathInfoType
                 // progectMemos: this.progectMemos(),
                 // fileMemos: this.fileMemos()
@@ -124,15 +126,9 @@ export default class ViewLoader {
                         const progect = this.createProgect(message.title);
                         if (progect) {
                             vscode.window.showInformationMessage("プロジェクト作成に成功しました。");
-                            if (this.savedProgectPath == undefined) {
-                                console.log("予期せぬエラー");
-                                break;
-                            }
-                            this.updateState(this.savedProgectPath, this.savedFilePath);
+                            this.updateState(this.activeProgectPath, this.activeFilePath);
                             break;
                         }
-                        console.log(progect);
-                        
                         vscode.window.showInformationMessage("プロジェクト作成に失敗しました。");
                         break;
                     default:
