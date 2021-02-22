@@ -12,8 +12,7 @@ export default class Main extends React.Component<{}, StateType> {
 
         this.state = {
             pathInfoType: PathInfo.yyy,
-            // viewType: View.types.ErrorField,
-            viewType: View.types.CreateProgectField,
+            viewType: View.types.ErrorField,
             // progectMemos: [],
             // fileMemos: []
         };
@@ -21,17 +20,30 @@ export default class Main extends React.Component<{}, StateType> {
         // superの外に出す＋関数化の必要性？？？
         window.addEventListener('message', event => {
             const data = event.data;
+            const pathInfoType = data.pathInfoType;
+            const viewType = this.getViewType(pathInfoType);
             this.setState({
-                pathInfoType: data.pathInfoType,
-                viewType: View.types.CreateProgectField
+                pathInfoType: pathInfoType,
+                viewType: viewType
                 // progectMemos: data.progectMemos,
                 // fileMemos: data.fileMemos
             });
         });
     }
 
-    viewType(): View.types {
-        return View.types.CreateProgectField;
+    private getViewType(pathInfoType: PathInfo.types): View.types {
+        switch(pathInfoType) {
+            case PathInfo.nnn:
+                return View.types.CreateProgectField;
+            case PathInfo.ynn: 
+                return View.types.CreateFileField;
+            case PathInfo.yyn:
+                return View.types.ProgectMemos;
+            case PathInfo.yyy:
+                return View.types.FileMemos;
+            default:
+                return View.types.ErrorField;
+        }
     }
 
     render() {
