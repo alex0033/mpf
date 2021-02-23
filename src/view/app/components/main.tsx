@@ -5,6 +5,11 @@ import Messages from './messages';
 import CreateProgectField from './main_contents/create_progect_field';
 import { View, PathInfo } from '../../../consts/types';
 
+interface vscode {
+    postMessage(message: any): void;
+}
+declare const vscode: vscode;
+
 export default class Main extends React.Component<{}, StateType> {
     // ビューを切り替えると、このクラスのインスタンスが再度生成される
     // 注意点として、このときstateの値も初期化される
@@ -17,12 +22,20 @@ export default class Main extends React.Component<{}, StateType> {
 
         this.state = {
             pathInfoType: PathInfo.types.yyy,
-            viewType: View.types.ErrorField
+            viewType: View.types.ErrorField,
             // progectMemos: [],
             // fileMemos: []
         };
 
-        // superの外に出す＋関数化の必要性？？？
+        // ViewLoaderとの通信
+        vscode.postMessage({
+            action: "postInfo"
+        });
+
+        this.listenMessage();
+    }
+
+    private listenMessage() {
         window.addEventListener('message', event => {
             const data = event.data;
             const pathInfoType: PathInfo.types = data.pathInfoType;
@@ -57,7 +70,7 @@ export default class Main extends React.Component<{}, StateType> {
         // break忘れの無限ループ
         // 何もしないのも問題らしい
         // 同じ値を代入しても止まる？？
-        
+
         // 助長すぎる？？下記のような書き方が出来れば。。
         // <{this.state.viewType}/>
         switch (this.state.viewType) {

@@ -10,13 +10,10 @@
         ],
         "jsx": "react",
         "sourceMap": true,
-        "rootDir": "../..", // ここの仕組み？？
+        "rootDir": "..", // ここの仕組み？？
         "noUnusedLocals": true,
         "noImplicitReturns": true,
         "noFallthroughCasesInSwitch": true,
         "experimentalDecorators": true
-    },
-    "include": [
-        "view/**/*"
-    ]
+    }
 }

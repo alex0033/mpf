@@ -41,9 +41,6 @@ export default class ViewLoader {
         this.pathInfoType = PathInfo.types.yyy;
 
         this.setState();
-
-        this.postMessage();
-
         this.listenMessage(context);
     }
 
@@ -129,6 +126,9 @@ export default class ViewLoader {
                             break;
                         }
                         vscode.window.showInformationMessage("プロジェクト作成に失敗しました。");
+                        break;
+                    case "postInfo":
+                        this.postMessage();
                         break;
                     default:
                         break;
