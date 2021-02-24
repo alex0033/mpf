@@ -1,7 +1,7 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
-import ViewLoader from "./view/ViewLoader";
+import Editor from './view/Editor';
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -26,7 +26,9 @@ export function activate(context: vscode.ExtensionContext) {
 		if (activeProgectPath) {
 			console.log("come for viewLoader");
 			
-			const viewLoader = new ViewLoader(context, activeProgectPath, activeFilePath);
+			// const viewLoader = new ViewLoader(context, activeProgectPath, activeFilePath);
+			const editor = new Editor(activeProgectPath, activeFilePath);
+			editor.createWebview(context);
 		}
 	});
 

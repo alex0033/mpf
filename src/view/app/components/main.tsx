@@ -28,6 +28,8 @@ export default class Main extends React.Component<{}, StateType> {
         };
 
         // ViewLoaderとの通信
+        // ViewLoaderとこのコンポーネントが同時にロードされるとは限らない
+        // コンポーネント生成とViewLoaderのインスタンス生成が同時に行われるわけではない。
         vscode.postMessage({
             action: "postInfo"
         });
