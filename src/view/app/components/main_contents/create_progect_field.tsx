@@ -1,4 +1,7 @@
 import * as React from 'react';
+import { editorAction } from '../../../../consts/editor_action';
+
+
 
 // 下記は共有する？？
 interface vscode {
@@ -22,7 +25,7 @@ export default class CreateProgectField extends React.Component<{}, {title: stri
             title: title
         });
         vscode.postMessage({
-            action: "createProgect",
+            action: editorAction.progectCreation,
             title: title
         });
     }

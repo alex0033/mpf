@@ -4,6 +4,7 @@ import { Progect, ProgectData } from "../models/project";
 import { File, FileData } from "../models/file";
 import { Memo } from "../models/memo";
 import ViewLoader from "./ViewLoader";
+import { editorAction } from "../consts/editor_action";
 
 const path = require('path');
 
@@ -85,16 +86,16 @@ export default class Editor {
         this.webview?.onDidReceiveMessage(
             message => {
                 switch(message.action) {
-                    case "createProgect":
+                    case editorAction.progectCreation:
                         const progect = this.createProgect(message.title);
                         if (progect) {
-                            vscode.window.showInformationMessage("プロジェクト作成に成功しました。");
+                            vscode.window.showInformationMessage(editorAction.message.successProgectCreation);
                             this.updateState(this.activeProgectPath, this.activeFilePath);
                             break;
                         }
-                        vscode.window.showInformationMessage("プロジェクト作成に失敗しました。");
+                        vscode.window.showInformationMessage(editorAction.message.failuerProgectCreation);
                         break;
-                    case "postInfo":
+                    case editorAction.editorStateTransmission:
                         this.postMessage();
                         break;
                     default:
@@ -108,11 +109,6 @@ export default class Editor {
 
     // webview => now(viewLoader) => progect model
     createProgect(title: string): Progect | undefined {
-        if (this.activeProgectPath == undefined) {
-            console.log("activeProgectPath is undefined");
-            
-            return undefined;
-        }
         const progectData: ProgectData = {
             title: title,
             path: this.activeProgectPath

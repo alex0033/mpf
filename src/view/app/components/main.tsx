@@ -4,6 +4,7 @@ import Footer from './footer';
 import Messages from './messages';
 import CreateProgectField from './main_contents/create_progect_field';
 import { View, PathInfo } from '../../../consts/types';
+import { editorAction } from '../../../consts/editor_action';
 
 interface vscode {
     postMessage(message: any): void;
@@ -31,7 +32,7 @@ export default class Main extends React.Component<{}, StateType> {
         // ViewLoaderとこのコンポーネントが同時にロードされるとは限らない
         // コンポーネント生成とViewLoaderのインスタンス生成が同時に行われるわけではない。
         vscode.postMessage({
-            action: "postInfo"
+            action: editorAction.editorStateTransmission
         });
 
         this.listenMessage();
