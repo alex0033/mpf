@@ -21,8 +21,10 @@ export function activate(context: vscode.ExtensionContext) {
 		vscode.window.showInformationMessage('Hello World from memo_per_file!');
 
 		// pathの性格な値チェック??
-		const activeProgectPath = vscode.workspace.rootPath;
-		const activeFilePath = vscode.workspace.workspaceFile?.toString();
+		const workspaceFolders = vscode.workspace.workspaceFolders;
+		const activeProgectPath = workspaceFolders && workspaceFolders[0].uri.path;
+		const activeFilePath = vscode.window.activeTextEditor?.document.fileName;
+
 		if (activeProgectPath) {
 			console.log("come for viewLoader");
 			

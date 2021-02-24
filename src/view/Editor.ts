@@ -8,21 +8,32 @@ import { editorAction } from "../consts/editor_action";
 
 const path = require('path');
 
+// FileData ProgectDataをどのように管理するか
+// idで扱うことにより、早くアクセスできる？？
+
 export default class Editor {
     private webview: vscode.Webview | undefined;
-    private activeProgectPath: string;
-    // activeAbsoluteFilePath or activeRelativeFilePath???
-    private activeFilePath: string | undefined;
+    // this.setPaths内で代入される
+    private activeAbsoluteProgectPath!: string;
+    private activeAbsoluteFilePath: string | undefined;
+    private activeRelativeFilePath: string | undefined;
+    private savedProgectId: number | undefined;
+    private savedFileId: number | undefined;
     private pathInfoType: PathInfo.types;
 
-    constructor(activeProgectPath: string, activeFilePath?: string) {
-        this.activeProgectPath = activeProgectPath;
-        this.activeFilePath = activeFilePath;
+    constructor(activeAbsoluteProgectPath: string, activeAbsoluteFilePath?: string) {
+        this.setPaths(activeAbsoluteProgectPath, activeAbsoluteFilePath);
 
         // 下記で初期値代入
         this.pathInfoType = PathInfo.types.yyy;
 
         this.setState();
+    }
+
+    setPaths(activeAbsoluteProgectPath: string, activeAbsoluteFilePath?: string) {
+        this.activeAbsoluteProgectPath = activeAbsoluteProgectPath;
+        this.activeAbsoluteFilePath = activeAbsoluteFilePath;
+        this.activeRelativeFilePath = path.relative(activeAbsoluteProgectPath, activeAbsoluteFilePath);
     }
 
     createWebview(context: vscode.ExtensionContext) {
@@ -35,40 +46,40 @@ export default class Editor {
     }
 
     private setState() {
-        const savedProgectPath = this.getProgectPath();
-
-        if (savedProgectPath == undefined) {
+        this.savedProgectId = this.getProgectId();
+        if (this.savedProgectId == undefined) {
             this.pathInfoType = PathInfo.types.nnn;
             return;
-        } else if (this.activeFilePath == undefined) {
+        } else if (this.activeRelativeFilePath == undefined) {
             this.pathInfoType = PathInfo.types.ynn;
             return;
         }
 
-        const savedFilePath = this.getFileAbsolutePath();
-        if (savedFilePath == undefined) {
+        this.savedFileId = this.getFileId();
+        if (this.savedFileId == undefined) {
             this.pathInfoType = PathInfo.types.yyn;
+            return;
         }
+        // yyyのとき反映されない問題
+        this.pathInfoType = PathInfo.types.yyy;
     }
 
     // vscode => now(viewLoader) => webview
-    updateState(activeProgectPath: string, activeFilePath?: string) {
-        this.activeProgectPath = activeProgectPath;
-        this.activeFilePath = activeFilePath;
+    updateState(activeAbsoluteProgectPath: string, activeAbsoluteFilePath?: string) {
+        this.setPaths(activeAbsoluteProgectPath, activeAbsoluteFilePath);
         this.setState();
         this.postMessage();
     }
 
-    private getProgectPath(): string | undefined {
-        return this.activeProgectPath && Progect.findByPath(this.activeProgectPath)?.path;
+    private getProgectId(): number | undefined {
+        return Progect.findByPath(this.activeAbsoluteProgectPath)?.getId();
     }
 
-    private getFileAbsolutePath(): string | undefined {
-        if (this.activeFilePath == undefined) {
+    private getFileId(): number | undefined {
+        if (this.activeRelativeFilePath == undefined) {
             return undefined;
         }
-        const fileRelativePath = path.relative(this.activeProgectPath, this.activeFilePath);
-        return File.findByPaths(this.activeProgectPath, fileRelativePath)?.absolutePath;
+        return this.savedProgectId && File.findByPathAndProgectId(this.activeRelativeFilePath, this.savedProgectId)?.getId();
     }
 
     // 適切に送れなかったとき再度送信やエラー表示しよう！！（再帰的？？）
@@ -85,15 +96,28 @@ export default class Editor {
     private listenMessage(context: vscode.ExtensionContext) {
         this.webview?.onDidReceiveMessage(
             message => {
+                // このように分岐する複合メソッドはどう定義するか
+                // 命名規則にたいしての疑問？？
                 switch(message.action) {
                     case editorAction.progectCreation:
+                        // 下記をcreateProgectというメソッド名にしたいがかぶる
+                        // [隔離]するためのメソッドをどうするか問題
                         const progect = this.createProgect(message.title);
                         if (progect) {
                             vscode.window.showInformationMessage(editorAction.message.successProgectCreation);
-                            this.updateState(this.activeProgectPath, this.activeFilePath);
+                            this.updateState(this.activeAbsoluteProgectPath, this.activeAbsoluteFilePath);
                             break;
                         }
                         vscode.window.showInformationMessage(editorAction.message.failuerProgectCreation);
+                        break;
+                    case editorAction.fileCreation:
+                        const file = this.createFile();
+                        if (file) {
+                            vscode.window.showInformationMessage(editorAction.message.successFileCreation);
+                            this.updateState(this.activeAbsoluteProgectPath, this.activeAbsoluteFilePath);
+                            break;
+                        }
+                        vscode.window.showInformationMessage(editorAction.message.failuerFileCreation);
                         break;
                     case editorAction.editorStateTransmission:
                         this.postMessage();
@@ -108,29 +132,36 @@ export default class Editor {
     }
 
     // webview => now(viewLoader) => progect model
-    createProgect(title: string): Progect | undefined {
+    private createProgect(title: string): Progect | undefined {
         const progectData: ProgectData = {
             title: title,
-            path: this.activeProgectPath
+            path: this.activeAbsoluteProgectPath
         }
         return Progect.create(progectData);
     }
 
     // webview => now(viewLoader) => progect model
-    createFile(fileData: FileData) {
-        File.create(fileData);
+    private createFile(): File | undefined {
+        if (this.savedProgectId == undefined || this.activeRelativeFilePath == undefined) {
+            return;
+        }
+        const fileData: FileData = {
+            progectId: this.savedProgectId,
+            path: this.activeRelativeFilePath
+        };
+        return File.create(fileData);
     }
 
     private progectMemos(): Memo[] {
         if (this.pathInfoType != PathInfo.types.nnn) {
-            return Memo.selectByPath(this.activeProgectPath);
+            return Memo.selectByPath(this.activeAbsoluteProgectPath);
         }
         return [];
     }
 
     private fileMemos(): Memo[] {
         if (this.pathInfoType == PathInfo.types.yyy) {
-            return Memo.selectByPath(this.activeProgectPath, this.activeFilePath);
+            return Memo.selectByPath(this.activeAbsoluteProgectPath, this.activeRelativeFilePath);
         }
         return [];
     }

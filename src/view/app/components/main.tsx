@@ -5,10 +5,9 @@ import Messages from './messages';
 import CreateProgectField from './main_contents/create_progect_field';
 import { View, PathInfo } from '../../../consts/types';
 import { editorAction } from '../../../consts/editor_action';
+import { vscode } from '../declare/vscode';
+import CreateFileField from './main_contents/create_file_field';
 
-interface vscode {
-    postMessage(message: any): void;
-}
 declare const vscode: vscode;
 
 export default class Main extends React.Component<{}, StateType> {
@@ -42,6 +41,8 @@ export default class Main extends React.Component<{}, StateType> {
         window.addEventListener('message', event => {
             const data = event.data;
             const pathInfoType: PathInfo.types = data.pathInfoType;
+            // 子要素から親要素
+            // 親要素から子要素へはpropsを使えばいいんです！！
             const viewType = this.getViewType(pathInfoType);
             this.setState({
                 pathInfoType: pathInfoType,
@@ -81,8 +82,8 @@ export default class Main extends React.Component<{}, StateType> {
                 mainContent = <CreateProgectField/>;
                 break;
             case View.types.CreateFileField:
-                mainContent = <p>CreateFileField</p>;
-                // mainContent = <CreateFileField/>;
+                mainContent = <CreateFileField/>;
+                // mainContent = <p>create_file_field</p>
                 break;
             case View.types.ProgectMemos:
                 // mainContent = <ProgectMemos/>;

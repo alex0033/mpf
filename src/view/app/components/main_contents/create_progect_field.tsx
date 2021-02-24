@@ -1,12 +1,7 @@
 import * as React from 'react';
 import { editorAction } from '../../../../consts/editor_action';
+import { vscode } from '../../declare/vscode';
 
-
-
-// 下記は共有する？？
-interface vscode {
-    postMessage(message: any): void;
-}
 declare const vscode: vscode;
 
 export default class CreateProgectField extends React.Component<{}, {title: string, nowText: string}> {
