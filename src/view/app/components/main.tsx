@@ -3,10 +3,12 @@ import Header from './header';
 import Footer from './footer';
 import Messages from './messages';
 import CreateProgectField from './main_contents/create_progect_field';
+import CreateFileField from './main_contents/create_file_field';
+import Memos from './main_contents/memos';
 import { View, PathInfo } from '../../../consts/types';
 import { editorAction } from '../../../consts/editor_action';
 import { vscode } from '../declare/vscode';
-import CreateFileField from './main_contents/create_file_field';
+import { Memo } from '../../../models/memo';
 
 declare const vscode: vscode;
 
@@ -23,8 +25,8 @@ export default class Main extends React.Component<{}, StateType> {
         this.state = {
             pathInfoType: PathInfo.types.yyy,
             viewType: View.types.ErrorField,
-            // progectMemos: [],
-            // fileMemos: []
+            progectMemos: [],
+            fileMemos: []
         };
 
         // ViewLoaderとの通信
@@ -46,9 +48,9 @@ export default class Main extends React.Component<{}, StateType> {
             const viewType = this.getViewType(pathInfoType);
             this.setState({
                 pathInfoType: pathInfoType,
-                viewType: viewType
-                // progectMemos: data.progectMemos,
-                // fileMemos: data.fileMemos
+                viewType: viewType,
+                progectMemos: data.progectMemos,
+                fileMemos: data.fileMemos
             });
         });
     }
@@ -87,11 +89,17 @@ export default class Main extends React.Component<{}, StateType> {
                 break;
             case View.types.ProgectMemos:
                 // mainContent = <ProgectMemos/>;
-                mainContent = <p>progectMemos</p>;
+                mainContent = <Memos
+                    viewType={this.state.viewType}
+                    memos={this.state.progectMemos}
+                />;
                 break;
             case View.types.FileMemos:
-                mainContent = <p>FileMemos</p>;
-                // mainContent = <FileMemos/>;
+                // mainContent = <p>FileMemos</p>;
+                mainContent = <Memos
+                    viewType={this.state.viewType}
+                    memos={this.state.fileMemos}
+                />;
                 break;
             default:
                 // return <p>here is default of viewType</p>;
@@ -111,11 +119,6 @@ export default class Main extends React.Component<{}, StateType> {
 interface StateType {
     pathInfoType: PathInfo.types
     viewType: View.types
-    // progectMemos: Memo[]
-    // fileMemos: Memo[]
-}
-
-interface Memo {
-    title: string
-    message: string
+    progectMemos: Memo[]
+    fileMemos: Memo[]
 }

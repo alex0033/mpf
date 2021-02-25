@@ -64,7 +64,7 @@ describe('MemoData Test Suite', () => {
     });
 
     it('selectByPath (path = filePath and progectPath)', () => {
-        const memos = Memo.selectByPath(existProgectData.path, existFileData.path);
+        const memos = Memo.selectByPaths(existProgectData.path, existFileData.path);
         const existMemo = Memo.deserialize(existMemoData, existMemoId);
         const existMemo2 = Memo.deserialize(existMemo2Data, existMemo2Id);
 
@@ -72,7 +72,7 @@ describe('MemoData Test Suite', () => {
     });
 
     it('selectByPath (path = only progectPath)', () => {
-        const memos = Memo.selectByPath(existProgectData.path);
+        const memos = Memo.selectByPaths(existProgectData.path);
         const existMemo = Memo.deserialize(existMemoData, existMemoId);
         const existMemo2 = Memo.deserialize(existMemo2Data, existMemo2Id);
         const memoWithProgect = Memo.deserialize(memoDataWithExistProgect, memoIdWithExistProgect);
@@ -82,14 +82,14 @@ describe('MemoData Test Suite', () => {
 
     it('selectByPath (path = progectPath and notExistFilePath)', () => {
         const notExistFilePath = "not_exist.txt";
-        const memos = Memo.selectByPath(existProgectData.path, notExistFilePath);
+        const memos = Memo.selectByPaths(existProgectData.path, notExistFilePath);
 
         assert.deepStrictEqual(memos, []);
     });
 
     it('selectByPath (path = notExistProgectPath)', () => {
         const notExistProgectPath = "/not/exist";
-        const memos = Memo.selectByPath(notExistProgectPath);
+        const memos = Memo.selectByPaths(notExistProgectPath);
 
         assert.deepStrictEqual(memos, []);
     });

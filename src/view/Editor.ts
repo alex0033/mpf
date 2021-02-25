@@ -2,9 +2,10 @@ import * as vscode from "vscode";
 import { PathInfo } from "../consts/types";
 import { Progect, ProgectData } from "../models/project";
 import { File, FileData } from "../models/file";
-import { Memo } from "../models/memo";
+import { Memo, MemoData } from "../models/memo";
 import ViewLoader from "./ViewLoader";
 import { editorAction } from "../consts/editor_action";
+import { destroyedId } from "../consts/number";
 
 const path = require('path');
 
@@ -85,9 +86,9 @@ export default class Editor {
     // 適切に送れなかったとき再度送信やエラー表示しよう！！（再帰的？？）
     private postMessage() {
         this.webview?.postMessage({
-            pathInfoType: this.pathInfoType
-            // progectMemos: this.progectMemos(),
-            // fileMemos: this.fileMemos()
+            pathInfoType: this.pathInfoType,
+            progectMemos: this.progectMemos(),
+            fileMemos: this.fileMemos()
         });
     }
 
@@ -118,6 +119,24 @@ export default class Editor {
                             break;
                         }
                         vscode.window.showInformationMessage(editorAction.message.failuerFileCreation);
+                        break;
+                    case editorAction.progectMemoCreation:
+                        const progectMemo = this.createProgectMemo(message.message);
+                        if (progectMemo) {
+                            vscode.window.showInformationMessage(editorAction.message.successMemoCreation);
+                            this.updateState(this.activeAbsoluteProgectPath, this.activeAbsoluteFilePath);
+                            break;
+                        }
+                        vscode.window.showInformationMessage(editorAction.message.failuerMemoCreation);
+                        break;
+                    case editorAction.fileMemoCreation:
+                        const fileMemo = this.createFileMemo(message.message);
+                        if (fileMemo) {
+                            vscode.window.showInformationMessage(editorAction.message.successMemoCreation);
+                            this.updateState(this.activeAbsoluteProgectPath, this.activeAbsoluteFilePath);
+                            break;
+                        }
+                        vscode.window.showInformationMessage(editorAction.message.failuerMemoCreation);
                         break;
                     case editorAction.editorStateTransmission:
                         this.postMessage();
@@ -152,16 +171,40 @@ export default class Editor {
         return File.create(fileData);
     }
 
+    private createProgectMemo(message: string): Memo | undefined {
+        if (this.savedProgectId == undefined) {
+            return undefined;
+        }
+        const memoData: MemoData = {
+            progectId: this.savedProgectId,
+            fileId: destroyedId,
+            message: message
+        }
+        return Memo.create(memoData);
+    }
+
+    private createFileMemo(message: string): Memo | undefined {
+        if (this.savedProgectId == undefined || this.savedFileId == undefined) {
+            return undefined;
+        }
+        const memoData: MemoData = {
+            progectId: this.savedProgectId,
+            fileId: this.savedFileId,
+            message: message
+        }
+        return Memo.create(memoData);
+    }
+
     private progectMemos(): Memo[] {
         if (this.pathInfoType != PathInfo.types.nnn) {
-            return Memo.selectByPath(this.activeAbsoluteProgectPath);
+            return Memo.selectByPaths(this.activeAbsoluteProgectPath);
         }
         return [];
     }
 
     private fileMemos(): Memo[] {
         if (this.pathInfoType == PathInfo.types.yyy) {
-            return Memo.selectByPath(this.activeAbsoluteProgectPath, this.activeRelativeFilePath);
+            return Memo.selectByPaths(this.activeAbsoluteProgectPath, this.activeRelativeFilePath);
         }
         return [];
     }

@@ -30,7 +30,7 @@ export class Memo extends BaseModel<MemoData> {
         return super.findById(id);
     }
 
-    static selectByPath(progectPath: string, filePath?: string): Memo[] {
+    static selectByPaths(progectPath: string, filePath?: string): Memo[] {
         const progectId = Memo.findProgectIdByPath(progectPath);
         if (progectId == undefined) {
             return [];

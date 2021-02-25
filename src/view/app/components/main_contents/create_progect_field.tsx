@@ -34,7 +34,7 @@ export default class CreateProgectField extends React.Component<{}, {title: stri
     render() {
         return (
             <div className="create_progect_field">
-                <input type="text" value={this.state.nowText}  onChange={(e) => this.handleOnChange(e)}/>
+                <input type="text" value={this.state.nowText} onChange={(e) => this.handleOnChange(e)}/>
                 {/* 下記<br>はみっともないなぁ。改善の余地あり */}
                 <br/>
                 <br/>
